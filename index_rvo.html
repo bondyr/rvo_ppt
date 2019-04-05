@@ -67,25 +67,25 @@ em {
 
 <body class="impress-not-supported">
 	<div id="impress">
-<!-- =============================================================================================================== -->	
+<!-- =================================================================================================== -->
 		<div id="title" class="step title" data-x="2600" data-y='-2000'>
 			<p>When the mix of modern C++ features surprise you</p>
 			<div class="notes">
 			<p>- Hello
 			<p>- warmup
-			<p>- talk about mix of modern c++ features 
+			<p>- talk about mix of modern c++ features
 			</div>
 		</div>
-<!-- =============================================================================================================== -->		
+<!-- =================================================================================================== -->
 		<div id="overview" class="step" data-x="2600" data-y='0' data-scale='15'>
 			<div class="notes">
 			<p>- journey</p>
-			
+
 			I’d like to take you for a journey that I set off couple months ago.
 			</div>
 		</div>
-<!-- =============================================================================================================== -->		
-		<div id="1" class="step" data-x="-1300" data-y="0" data-z="0" style="font-size:45px;">
+<!-- =================================================================================================== -->
+		<div id="compile1" class="step" data-x="-1300" data-y="0" data-z="0" style="font-size:45px;">
 			<p>auto </p>
 			<p>unique_ptr</p>
 			<p>move</p>
@@ -96,17 +96,17 @@ em {
 			<p>- ended with compiler RVO: copy elisions and move semantics</p>
 			</div>
 		</div>
-<!-- =============================================================================================================== -->		
-		<div id="2" class="step" data-x="-2600" data-y="0" data-z="0">
+<!-- =================================================================================================== -->
+		<div id="compile2" class="step" data-x="-2600" data-y="0" data-z="0">
 			<pre><code><p style="text-align: left">
 class Combiner { ... };
-			
+
 unique_ptr&ltCombiner> create()
 {
     auto combiner = make_unique&ltCombiner>();
     combiner->init();
     ...
-    return <strong>move(combiner)</strong>;	
+    return <strong>move(combiner)</strong>;
 }
 			</p></code></pre>
 			<div class=notes>
@@ -114,46 +114,47 @@ unique_ptr&ltCombiner> create()
 			<p>- factory fun casting to rval
 			<p>- lot of tutorials
 			<p>- suffer on performance</p>
-			
+
 			When doing review of code, I noticed a piece of code that contained a minor mistake.
-			Factory function, that was creating and initializing a unique pointer, on return was casting it to rvalue.
-			There’re a lot of tutorials on modern c++ saying that you shouldn’t do that, bc you prevent compiler optimization 
-			and your code will suffer on performance. 
+			Factory function, that was creating and initializing a unique pointer, on return was casting it to
+			rvalue.
+			There’re a lot of tutorials on modern c++ saying that you shouldn’t do that, bc you prevent compiler
+			optimization and your code will suffer on performance.
 			</div>
 		</div>
-<!-- =============================================================================================================== -->		
-		<div id="3" class="step" data-x="-3900" data-y="0" data-z="0">
+<!-- =================================================================================================== -->
+		<div id="compile3" class="step" data-x="-3900" data-y="0" data-z="0">
 			<img src=images/nonCompile/Meyers_return_move.PNG>
 			<div class=notes>
 			<p>- Meyers, puts in frame, "Effective Modern C++"
 			<p>- Briefly - prevents RVO, intro move operation
 			<p>- anyway if copy elision not allowed
-									
-			It's one of the first things you learn when diving into move semantics, 
+
+			It's one of the first things you learn when diving into move semantics,
 			Scott Meyers also emphasises it properly in his "Effective Modern C++" book.
-			So briefly - it prevents compiler from return value optimization and introduces a move operation instead, 
-			that would be applied here anyway if copy elision was not allowed.
+			So briefly - it prevents compiler from return value optimization and introduces
+			a move operation instead, that would be applied here anyway if copy elision was not allowed.
 			</div>
 		</div>
-<!-- =============================================================================================================== -->		
-		<div id="4" class="step" data-x="-2600" data-y="0" data-z="0">
+<!-- =================================================================================================== -->
+		<div id="compile4" class="step" data-x="-2600" data-y="0" data-z="0">
 			<div class=notes>
 			<p>- In this case RVO inhibited
 			<p>- different return types
 			<p>- logged a comment, went back to other tasks
 			<p>- problem</p>
-			
-			In this case - RVO would be inhibited bc function return type and actually returned type are different - 
-			unique_ptr and rvalue reference to unique_ptr.
-			So I logged a comment on that you shouldn’t use move on return from function. I also put there few links
-			explaining why, a quote with explanation from Meyers book, and went back to other tasks. 
-			My collegue noticed comment, fixed code in this place and few other places that were also returning move 
-			and… told me that there’s a problem.			
+
+			In this case - RVO would be inhibited bc function return type and actually returned type
+			are different - unique_ptr and rvalue reference to unique_ptr.
+			So I logged a comment on that you shouldn’t use move on return from function. I also put there
+			few links explaining why, a quote with explanation from Meyers book, and went back to other tasks.
+			My collegue noticed comment, fixed code in this place and few other places that were also returning
+			move and… told me that there’s a problem.
 			</div>
 		</div>
-<!-- =============================================================================================================== -->		
-		<div id="5" class="step" data-x="-3900" data-y="800" data-z="10" style="text-align: left;">
-			<pre><code><p>  
+<!-- =================================================================================================== -->
+		<div id="compile5" class="step" data-x="-3900" data-y="800" data-z="10" style="text-align: left;">
+			<pre><code><p>
 class MixerInterface{...};
 class Mixer : public MixerInterface {...};
 
@@ -163,7 +164,7 @@ unique_ptr&lt<strong>MixerInterface</strong>> create()
     mixer->init();
     ...
     return <strong>move(mixer)</strong>;
-}				
+}
 			</p></code></pre>
 			<div class=notes>
 			<p>- almost the same
@@ -172,8 +173,8 @@ unique_ptr&lt<strong>MixerInterface</strong>> create()
 			<p>- returnes derived class</p>
 			</div>
 		</div>
-<!-- =============================================================================================================== -->		
-		<div id="6" class="step" data-x="-3900" data-y="1600" data-z="20">
+<!-- =================================================================================================== -->
+		<div id="compile6" class="step" data-x="-3900" data-y="1600" data-z="20">
 			<pre><code><p style="text-align: left; font-size:30;">
 unique_ptr&lt<strong>MixerInterface</strong>> create()
 {
@@ -181,53 +182,55 @@ unique_ptr&lt<strong>MixerInterface</strong>> create()
     mixer->init();
     ...
     return <strong>mixer</strong>;
-}			
+}
 
 
 
 error: cannot bind 'unique_ptr&ltMixer>' lvalue
                 to 'unique_ptr&ltMixer>&&'
-			</p></code></pre>		  	
+			</p></code></pre>
 		<div class=notes>
 		<p>- compiler error
 		<p>- no RVO but move ctor (fine)
 		<p>- why lvalue error?</p>
 
-		How surprised were we, when it turned out that this function produced compiler error. And it was kind of not obvious
-		in the beginning - obviously no RVO happened cause compiler tried to fire move ctor for unique_ptr (this is fine bc)
-		type of fun prototype and returned object are different), but had only lvalue available. Why is there lvalue error?
-		</div>	
+		How surprised were we, when it turned out that this function produced compiler error.
+		And it was kind of not obvious in the beginning - obviously no RVO happened cause compiler tried
+		to fire move ctor for unique_ptr (this is fine bc)
+		type of fun prototype and returned object are different), but had only lvalue available.
+		Why is there lvalue error?
 		</div>
-<!-- =============================================================================================================== -->		
-		<div id="7" class="step" data-x="-3900" data-y="2400" data-z="0">
+		</div>
+<!-- =================================================================================================== -->
+		<div id="compile7" class="step" data-x="-3900" data-y="2400" data-z="0">
 			<pre><code><p style="text-align:left; font-size:28;">
 note: initializing argument 1 of
 'unique_ptr<_Tp, _Dp>::unique_ptr(unique_ptr<_Up, _Ep>&&)
 [with _Up = Mixer;          _Ep = default_delete<Mixer>;
       _Tp = MixerInterface; _Dp = default_delete<MixerInterface>]'
-      
 
 
-unique_ptr&lt<strong>MixerInterface</strong>>::unique_ptr(unique_ptr&lt<strong>Mixer</strong>>&& u);   
 
-      		
-      		
+unique_ptr&lt<strong>MixerInterface</strong>>::unique_ptr(unique_ptr&lt<strong>Mixer</strong>>&& u);
+
+
+
 unique_ptr&ltMixerInterface>(mixer);
 			</p></code></pre>
 		<div class=notes>
 		<p>- why not copy ctor
 		<p>- converting move ctor</p>
-		 
+
 		</div>
 		</div>
-<!-- =============================================================================================================== -->		
-		<div id="7b" class="step" data-x="-3900" data-y="1600" data-z="0">
+<!-- =================================================================================================== -->
+		<div id="compile7b" class="step" data-x="-3900" data-y="1600" data-z="0">
 		<div class=notes>
 		<p>- can't bind lval to rval ref</p>
 		</div>
 		</div>
-<!-- =============================================================================================================== -->		
-		<div id="8" class="step" data-x="-2600" data-y="2400" data-z="0">
+<!-- =================================================================================================== -->
+		<div id="compile8" class="step" data-x="-2600" data-y="2400" data-z="0">
 			<pre><code><p style="text-align:left; font-size:30;">
 unique_ptr&lt<strong>MixerInterface</strong>> create()
 {
@@ -251,12 +254,12 @@ unique_ptr&lt<strong>MixerInterface</strong>> create()
 		<p>- return rvalue object directly
 		<p>- returns lvalue object of type MixerInterface - NRVO
 		</p>
-		We started debugging to see what's going on, and checked that these 2 pieces of code are compiled fine. 
-		</div>	
+		We started debugging to see what's going on, and checked that these 2 pieces of code are compiled fine.
+		</div>
 		</div>
 
 <!-- =============================================================================================================== -->
-		<div id="9" class="step" data-x="-2600" data-y="1600" data-z="0">
+		<div id="compile9" class="step" data-x="-2600" data-y="1600" data-z="0">
 			<pre><code><p style="text-align:left; font-size:25;">
 unique_ptr&lt<strong>const MixerInterface</strong>> create()
 {
@@ -269,17 +272,17 @@ unique_ptr&lt<strong>const MixerInterface</strong>> create()
 
 error: cannot bind 'unique_ptr&ltMixerInterface>' lvalue
                 to 'unique_ptr&ltMixerInterface>&&'
-                
-                
-unique_ptr&lt<strong>const MixerInterface</strong>>::unique_ptr(unique_ptr&lt<strong>MixerInterface</strong>>&& u);                
+
+
+unique_ptr&lt<strong>const MixerInterface</strong>>::unique_ptr(unique_ptr&lt<strong>MixerInterface</strong>>&& u);
 			</p></code></pre>
 		<div class=notes>
 		<p>- further analysis
 		<p>- return base class type with const base class prototype
 		</div>
 		</div>
-<!-- =============================================================================================================== -->		
-		<div id="10" class="step" data-x="-2600" data-y="800" data-z="0">
+<!-- =================================================================================================== -->
+		<div id="compile10" class="step" data-x="-2600" data-y="800" data-z="0">
 			<pre><code><p style="text-align:left; font-size:35;">
 <strong>MixerInterface</strong> create()
 {
@@ -301,18 +304,18 @@ unique_ptr&lt<strong>const MixerInterface</strong>>::unique_ptr(unique_ptr&lt<st
 		<p>- lval, ok but why not NRVO?</p>
 		</div>
 		</div>
-<!-- =============================================================================================================== -->			
-		<div id="11" class="step" data-x="-1300" data-y="800" data-z="0">
+<!-- =================================================================================================== -->
+		<div id="compile11" class="step" data-x="-1300" data-y="800" data-z="0">
 			<p>c++11
 			<p>gcc 4.9.2
 			<p>gcc up to 4.9.4
 			<p>www.godbolt.org
 		<div class=notes>
 		<p>-
-		</div>			
 		</div>
-<!-- =============================================================================================================== -->			
-		<div id="12" class="step" data-x="-1300" data-y="1600" data-z="0">
+		</div>
+<!-- =================================================================================================== -->
+		<div id="compile12" class="step" data-x="-1300" data-y="1600" data-z="0">
 			gcc 5.1+
 			<pre><code><p style="text-align:left; font-size:20;">
 unique_ptr&lt<strong>MixerInterface</strong>> create()
@@ -323,7 +326,7 @@ unique_ptr&lt<strong>MixerInterface</strong>> create()
 }
 
 unique_ptr&ltMixerInterface>::unique_ptr&ltMixer>(unique_ptr&ltMixer>&& u)
- 
+
 
 
 unique_ptr&lt<strong>const MixerInterface</strong>> create()
@@ -342,13 +345,13 @@ unique_ptr&ltMixerInterface const>::unique_ptr&ltMixerInterface>(unique_ptr&ltMi
 		<p>- we assumed that it's a compiler error
 		</div>
 		</div>
-<!-- =============================================================================================================== -->			
-		<div id="13" class="step" data-x="-1300" data-y="2400" data-z="0">
+<!-- =================================================================================================== -->
+		<div id="compile13" class="step" data-x="-1300" data-y="2400" data-z="0">
 			gcc 8.1+
 			<pre><code><p style="text-align:left; font-size:30;">
-A create()
+MixerInterface create()
 {
-    B x;
+    Mixer x;
     return x;
     // OK - move ctor now!
 }
@@ -360,12 +363,12 @@ A create()
 		</p>
 		</div>
 		</div>
-		<div id="14" class="step" data-x="-1300" data-y="3200" data-z="0">
-			latest clang (trunk)
+		<div id="compile14" class="step" data-x="-1300" data-y="3200" data-z="0">
+			latest clang 8.0.0
 			<pre><code><p style="text-align:left; font-size:30;">
-A create()
+MixerInterface create()
 {
-    B x;
+    Mixer x;
     return x;
     // OK - still copy ctor
 }
@@ -376,16 +379,16 @@ A create()
 		</p>
 		</div>
 		</div>
-		<div id="15" class="step" data-x="-2600" data-y="3200" data-z="0">
+		<div id="compile15" class="step" data-x="-2600" data-y="3200" data-z="0">
 		<p style="font-size:60;">Summary:</p>
 		<p>unique_ptr to class hierarchy doesn't compile on gcc 4.9.4-
 		<p>it compiles on gcc 5.1+
 		<p>class hierarchy performs copy on gcc 8.0-
 		<p>class hierarchy performs move on gcc 8.1+
-		<p>class hierarchy performs copy on latest trunk
+		<p>class hierarchy performs copy on clang 8.0.0
 		<p><br><strong>Pretty messed up</strong></p>
 		</div>
-		<div class="step" data-x="-3900" data-y="3200" data-z="0">
+<!-- 		<div class="step" data-x="-3900" data-y="3200" data-z="0">
 			asdasda</div>
 		<div class="step" data-x="-3900" data-y="4000" data-z="0">
 			asdasda</div>
@@ -403,9 +406,9 @@ A create()
 		<div class="step" data-x="-5200" data-y="3200" data-z="0">
 			asdasda</div>
 		<div class="step" data-x="-5200" data-y="4000" data-z="0">
-			asdasda</div>
+			asdasda</div> -->
 		<!-- 		section 2 -->
-		<div class="step" data-x="1300" data-y="0" data-z="0">asdasda</div>
+		<div class="step" data-x="1300" data-y="0" data-z="0">1st slide sec2</div>
 
 		<div class="step" data-x="2600" data-y="0" data-z="0">
 			<!-- <img src=images/a.jpeg> -->
@@ -504,42 +507,42 @@ A create()
 			asdasda</div>
 		<div class="step" data-x="11700" data-y="4000" data-z="0">
 			asdasda</div>
-		<!-- 
+		<!--
             <div id="slide2" class="step" data-x="1200" "data-y="0" data-z="0">
-                <p>This Slide Moves From Right To Left</p>	
+                <p>This Slide Moves From Right To Left</p>
             </div>
 
             <div id="slide3" class="step" data-x="2200" data-y="500">
-                <p>This Slide Moves From Right To Left and Bottom To Top</p>	
+                <p>This Slide Moves From Right To Left and Bottom To Top</p>
             </div>
 
             <div id="slide4" class="step" data-x="2200" data-y="-500">
-                <p>This Slide Moves Top To Bottom</p>	
+                <p>This Slide Moves Top To Bottom</p>
             </div>
 
             <div id="slide5" class="step" data-x="3200" data-rotate="150">
-                <p>This Slide Rotates Clockwise Around z-axis</p>	
+                <p>This Slide Rotates Clockwise Around z-axis</p>
             </div>
 
             <div id="slide6" class="step" data-x="6200" data-scale='3'>
-                <p>This Slide Scales 3 Times</p>	
+                <p>This Slide Scales 3 Times</p>
             </div>
 
             <div id="slide7" class="step" data-x="4200" data-y='1500' data-z='1500'>
-                <p>Away</p>	
+                <p>Away</p>
             </div>
 
             <div id="slide8" class="step" data-x="4900" data-y='1500' data-z='100'>
-                <p>Towards</p>	
+                <p>Towards</p>
             </div>
 
             <div id="slide9" class="step" data-x="5600" data-y='1500' data-z='-1500'>
-                <p>Futher Towards</p>	
+                <p>Futher Towards</p>
             </div>
  -->
-		<!-- 
+		<!--
             <div id="slide10" class="step" data-x="2600" data-y='3000' data-scale='15'>
-                <p>Visualization Slide Positions</p>	
+                <p>Visualization Slide Positions</p>
             </div>
  -->
 
