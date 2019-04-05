@@ -101,7 +101,7 @@ em {
 			<pre><code><p style="text-align: left">
 class Combiner { ... };
 			
-unique_ptr&ltCombiner> createCombiner()
+unique_ptr&ltCombiner> create()
 {
     auto combiner = make_unique&ltCombiner>();
     combiner->init();
@@ -123,7 +123,7 @@ unique_ptr&ltCombiner> createCombiner()
 		</div>
 <!-- =============================================================================================================== -->		
 		<div id="3" class="step" data-x="-3900" data-y="0" data-z="0">
-			<img src=images/Meyers_return_move.PNG>
+			<img src=images/nonCompile/Meyers_return_move.PNG>
 			<div class=notes>
 			<p>- Meyers, puts in frame, "Effective Modern C++"
 			<p>- Briefly - prevents RVO, intro move operation
@@ -353,7 +353,7 @@ A create()
     // OK - move ctor now!
 }
 			</p></code></pre>
-			<img src=images/create_gcc.png>
+			<img src=images/nonCompile/create_gcc.png>
 		<div class=notes>
 		<p>- newer compiler
 		<p>- still compiles but now move ctor instead of copy ctor
@@ -370,7 +370,7 @@ A create()
     // OK - still copy ctor
 }
 			</p></code></pre>
-			<img src=images/create_clang.png>
+			<img src=images/nonCompile/create_clang.png>
 		<div class=notes>
 		<p>- on clang still copy ctor
 		</p>
