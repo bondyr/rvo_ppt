@@ -145,10 +145,10 @@ Mixer create3(int q) {
 
 - cpp17 obligation
 ctors in pre cpp17 must be present
- The main problem is that, without guaranteed elision, you cannot get rid of the move and copy constructor, because elision might not take place. This prevents non-movable types from having functions that return by value, such as factories.
+ In C++11 and C++14 the main problem is that, without guaranteed elision, you cannot get rid of the move and copy constructor, because elision might not take place. This prevents non-movable types from having functions that return by value, such as factories.
  
 The complete name of the proposal is "Guaranteed copy elision through simplified value categories". To achieve guaranteed copy elision, the proposal suggest distinguishing between prvalue (pure rvalue) expressions and the temporary objects initialized by them. More specifically, a glvalue (generalized lvalue) is defined as the location of an object and a prvalue is defined as the initializer of the object.
-If a prvalue is used as the initializer of an object with the same type, it initializes it directly. As a consequence, initializing the return value of a function with a temporary causes the value to be initialized directly, without a copy or a move. This means that the copy or move constructor of the object no longer needs to be accessible. 
+If a prvalue is used as the initializer of an object with the same type, it initializes it directly. As a consequence, initializing the return value of a function with a temporary causes the value to be initialized directly, without a copy or a move. This means that the copy or move constructor of the object no longer needs to be accessible.
  
  
  Below does not compile:
@@ -158,11 +158,12 @@ struct Factory {
   Factory(Factory &&) = delete;
 };
 
-Factory x0{Factory{}};
+Factory getFactory() { return Factory{}; }
     
 error: use of deleted function 'Factory::Factory(Factory&&)'    
  
 Actually, according to  blog.tartanllama.xyz, it's better to understand it not as a guaranteed copy elision but deferred temporary materialization.
+
 
 - how copy elision works - example by John Kalb on 2018 cppcon
 

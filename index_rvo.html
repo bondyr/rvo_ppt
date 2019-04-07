@@ -23,10 +23,14 @@ body {
     font-size: 40px;
 }
 
-.code_style {
+.left {
     text-align: left;
-    font-family: "Monospace";
 }
+
+/* .code_style { */
+/*     text-align: left; */
+/*     font-family: "Monospace"; */
+/* } */
 
 .step {
     text-align: center;
@@ -634,13 +638,66 @@ Mixer create3(int q) {
         </div>
 <!-- =================================================================================================== -->
         <div id="copyElision14" class="step" data-x="2600" data-y="3200" data-z="0">
-            asdasda</div>
+        <p class=title>RVO in C++17</p>
+        <pre><code><p style="text-align: left">
+struct Factory {
+  Factory(){};
+  Factory(const Factory &) = delete;
+  Factory(Factory &&) = delete;
+};
+
+Factory getFactory() { return Factory{}; }
+    
+<strong>error</strong>: use of deleted function
+       'Factory::Factory(Factory&&)'
+        </p>
+        </code>
+        </pre>
+        <div class=notes>
+        <p>- c11, c14 main problem - can't get rid of copy/move ctor
+        <p>- copy elision might not take place
+        <p>- prevents non-movable types from
+        <p>- such as factories
+        </p>
+        In C++11 and C++14 the main problem is that, without guaranteed elision, you cannot get rid of the move and copy constructor,
+        because elision might not take place. This prevents non-movable types from having functions that return by value,
+        such as factories.
+        </div>    
+        </div>
 <!-- =================================================================================================== -->            
         <div id="copyElision15" class="step" data-x="3900" data-y="3200" data-z="0">
-            asdasda</div>
+        <p class=title>"Guaranteed copy elision through simplified value categories"</p>
+        <br>
+        <p class=left>- prvalue - initializer of object</p>
+        <p class=left>- glvalue - location of object</p>
+        <p class=left>- value returned from function, when init with temporary, is init directly
+        <p class=left>- no copy/move ctor needed
+        <div class=notes>
+        <p>- name of proposal
+        <p>- distinguish between prvalue and temp objects initialized by them
+        <p>- g/p defined as ...
+        <p>- prvalue initializes object directly
+        <p>- as a consequence, init ...
+        <p>- no copy, no move
+        <p>- move/copy ctors not needed
+        </p>
+        The complete name of the proposal is ...
+        To achieve guaranteed copy elision, the proposal suggest distinguishing between prvalue (pure rvalue) expressions
+        and the temporary objects initialized by them. More specifically, a glvalue (generalized lvalue) is defined
+        as the location of an object and a prvalue is defined as the initializer of the object.
+        If a prvalue is used as the initializer of an object with the same type, it initializes it directly.
+        As a consequence, initializing the return value of a function with a temporary causes the value to be initialized directly,
+        without a copy or a move. This means that the copy or move constructor of the object no longer needs to be accessible.
+        </div>
+        </div>
 <!-- =================================================================================================== -->            
         <div id="copyElision16" class="step" data-x="3900" data-y="4000" data-z="0">
-            asdasda</div>
+        <p class=title>Actually...</p>
+        <p class=left>- it's not copy elision anymore
+        <p class=left>- no copy to elide
+        <p class=left><strong>- deferred temporary materialization</strong></p>
+            
+        </div>
 <!-- =================================================================================================== -->            
         <div id="copyElision17" class="step" data-x="2600" data-y="4000" data-z="0">
             asdasda</div>
