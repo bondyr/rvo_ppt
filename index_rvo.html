@@ -256,6 +256,7 @@ unique_ptr&ltMixerInterface>(mixer);
         </div>
 <!-- =================================================================================================== -->
         <div id="compile8" class="step" data-x="-2600" data-y="2400" data-z="0">
+            <p class=title>So debugging starts...</p>
             <pre><code><p style="text-align:left; font-size:30;">
 unique_ptr&lt<strong>MixerInterface</strong>> create()
 {
@@ -285,7 +286,8 @@ unique_ptr&lt<strong>MixerInterface</strong>> create()
 
 <!-- =============================================================================================================== -->
         <div id="compile9" class="step" data-x="-2600" data-y="1600" data-z="0">
-            <pre><code><p style="text-align:left; font-size:25;">
+        <p class=title>Another compilation error</p>
+            <pre><code><p style="text-align:left; font-size:30;">
 unique_ptr&lt<strong>const MixerInterface</strong>> create()
 {
     auto mixer = make_unique&lt<strong>MixerInterface</strong>>();
@@ -299,7 +301,8 @@ error: cannot bind 'unique_ptr&ltMixerInterface>' lvalue
                 to 'unique_ptr&ltMixerInterface>&&'
 
 
-unique_ptr&lt<strong>const MixerInterface</strong>>::unique_ptr(unique_ptr&lt<strong>MixerInterface</strong>>&& u);
+unique_ptr&lt<strong>const MixerInterface</strong>>::
+unique_ptr(unique_ptr&lt<strong>MixerInterface</strong>>&& u);
             </p></code></pre>
         <div class=notes>
         <p>- further analysis
@@ -308,6 +311,7 @@ unique_ptr&lt<strong>const MixerInterface</strong>>::unique_ptr(unique_ptr&lt<st
         </div>
 <!-- =================================================================================================== -->
         <div id="compile10" class="step" data-x="-2600" data-y="800" data-z="0">
+        <p class=title>Let's drop unique_ptr for few secs</p>
             <pre><code><p style="text-align:left; font-size:35;">
 <strong>MixerInterface</strong> create()
 {
@@ -325,6 +329,7 @@ unique_ptr&lt<strong>const MixerInterface</strong>>::unique_ptr(unique_ptr&lt<st
             </p></code></pre>
         <div class=notes>
         <p>- further testing
+        <p>- object slicing
         <p>- why not copy elision?
         <p>- rval, move ctor, as expected
         <p>- lval, copy ctor, why?</p>
@@ -334,7 +339,7 @@ unique_ptr&lt<strong>const MixerInterface</strong>>::unique_ptr(unique_ptr&lt<st
         <div id="compile11" class="step" data-x="-1300" data-y="800" data-z="0">
             <p>c++11
             <p>gcc 4.9.2
-            <p>gcc up to 4.9.4
+            <p>custom make_unique()
             <p>www.godbolt.org
         <div class=notes>
         <p>-
