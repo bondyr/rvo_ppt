@@ -404,24 +404,24 @@ MixerInterface create()
         <p><br><strong>Pretty messed up</strong></p>
         </div>
 <!--        <div class="step" data-x="-3900" data-y="3200" data-z="0">
-            asdasda</div>
+        </div>
         <div class="step" data-x="-3900" data-y="4000" data-z="0">
-            asdasda</div>
+        </div>
         <div class="step" data-x="-2600" data-y="4000" data-z="0">
-            asdasda</div>
+        </div>
         <div class="step" data-x="-1300" data-y="4000" data-z="0">
-            asdasda</div>
+        </div>
         <div class="step" data-x="-5200" data-y="0" data-z="0">asdasda</div>
         <div class="step" data-x="-5200" data-y="800" data-z="0">
-            asdasda</div>
+        </div>
         <div class="step" data-x="-5200" data-y="1600" data-z="0">
-            asdasda</div>
+        </div>
         <div class="step" data-x="-5200" data-y="2400" data-z="0">
-            asdasda</div>
+        </div>
         <div class="step" data-x="-5200" data-y="3200" data-z="0">
-            asdasda</div>
+        </div>
         <div class="step" data-x="-5200" data-y="4000" data-z="0">
-            asdasda</div> -->
+        </div> -->
 <!-- =================================================================================================== -->
 <!--                                    Chapter II - Copy elision                                        -->
 <!-- =================================================================================================== -->
@@ -783,55 +783,300 @@ Factory getFactory() { return Factory{}; }
 <!-- =================================================================================================== -->
 <!--                                    Chapter II - Move                                         -->
 <!-- =================================================================================================== -->
-        <div class="step" data-x="7800" data-y="0" data-z="0">asdasda</div>
+        <div id="Move1" class="step" data-x="7800" data-y="0" data-z="0">
+        <p class=title>When copy elision not eligible...</p>
+        <p>then create new object</p>
+        <br><br>
+        <p class=title2>copy or <strong>move</strong></p>
+        <div class=notes>
+        <p>- we just went through [...] but why?
+        <p>- still keep in mind non compile?
+        <p>- we remember that compiler error was [...]
+        <p>- be patient, we're getting there
+        <p>- when no copy elision, then create object
+        <p>- move/copy - what criteria?
+        </p>
+        Ok, we've just went through copy elision criteria and examples but why? We still keep in mind our non compiling 
+        examples from previous secion right? We remember that compiler error was that 
+        it wanted to call converting move ctor but had only lvalue object so printed en error right? Be patient, we're getting there. 
+        
+        So on function return, when copy elision is not eligible, new object needs to be created. It can be created using
+        move ctor or copy ctor. What are criteria that compiler uses to take this decision?
+        </div>
+        </div>
+<!-- =================================================================================================== -->
+        <div id="Move2" class="step" data-x="9100" data-y="0" data-z="0">
+        <p class=title>Move or copy?</p>
+        <pre class=left><code>
+Mixer fun1() {
+    // easy - rvalue so move ctor
+    return Mixer{};
+}
 
-        <div class="step" data-x="9100" data-y="0" data-z="0">
-            <!-- <img src=images/a.jpeg> -->
-            asdasda
-        </div>
 
-        <div class="step" data-x="10400" data-y="0" data-z="0">asdasda</div>
-        <div class="step" data-x="10400" data-y="800" data-z="10">
-            asdasda</div>
-        <div class="step" data-x="10400" data-y="1600" data-z="20">
-            asdasda</div>
-        <div class="step" data-x="10400" data-y="2400" data-z="300">
-            asdasda</div>
-        <div class="step" data-x="9100" data-y="2400" data-z="0">
-            asdasda</div>
-        <div class="step" data-x="9100" data-y="1600" data-z="0">
-            asdasda</div>
-        <div class="step" data-x="9100" data-y="800" data-z="0">asdasda
+
+Mixer fun2() {
+    // but here's lvalue...
+    Mixer x;
+    return x;
+}
+        </code></pre>
+        <div class=notes>
+        <p>- fun1()
+        <p>- fun2()
+        <p>- performance issue
+        <p>- nice to have a mechanism that allowes move here
+        <p>- actually there's one
+        </p>
+        lvalue so should be copy ctor but obviously it would be performance issue. So it would be nice 
+        to have a mechanism that allowed to do move operation here. Actually there's one.
         </div>
-        <div class="step" data-x="7800" data-y="800" data-z="0">asdasda
         </div>
-        <div class="step" data-x="7800" data-y="1600" data-z="0">
-            asdasda</div>
-        <div class="step" data-x="7800" data-y="2400" data-z="0">
-            asdasda</div>
-        <div class="step" data-x="7800" data-y="3200" data-z="0">
-            asdasda</div>
-        <div class="step" data-x="9100" data-y="3200" data-z="0">
-            asdasda</div>
-        <div class="step" data-x="10400" data-y="3200" data-z="0">
-            asdasda</div>
-        <div class="step" data-x="10400" data-y="4000" data-z="0">
-            asdasda</div>
+<!-- =================================================================================================== -->
+        <div id="Move3" class="step" data-x="10400" data-y="0" data-z="0">
+        <p class=title>C++11* criteria for RVO with move</p>
+        <br><br>
+        <img src=images/rvoMove/cpp11_move_criteria.PNG>
+        <div class=notes>
+        <p>- highlited -> doit 
+        <p>- tied closely with crit for c.e.
+        <p>- only diff - can be used for fun param
+        <p>- fun2() - move op
+        <p>- compulsory, not as with c.e.
+        </p>
+        A lot of test but don't worry, highlited.
+        Criteria for creation of new object with move op tied closely with criteria for copy elision, the only 
+        difference is it can be used for fun param.
+        In example fun2 works fine here.
+        </div>
+        </div>
+<!-- =================================================================================================== -->
+        <div id="Move4" class="step" data-x="10400" data-y="800" data-z="10">
+        <p class=title>So move instead of copy elision but criteria tied closely...</p>
+        <br><br>
+        <p class=left>- when -fno-elide-constructors</p>
+        <p class=left>- when decision not to perform copy elision as it's not mandatory
+        <p class=left>- when fun param
+        <div class=notes>
+        <p>- even if eligible for copy elision, might have decided, as prev section
+        </p>
+        So when can we use it when criteria for copy elision are met but copy elision is not performed?
+        For sure when compiling with - fno-elide-constructors flag. But remember also that copy elision in cpp11 and cpp14
+        is not required, so even when sth is eligible to copy elision, compiler engineers might have decided not to do so,
+        as in example with exception in previous section.
+        </div>
+        </div>
+<!-- =================================================================================================== -->
+        <div id="Move5" class="step" data-x="10400" data-y="1600" data-z="20">
+        <p class=title>DR1579</p>
+        <p style="font-size:25">http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#1579</p>
+        <p style="font-size:25">2012-2014
+        <p>
+        <img src=images/rvoMove/DR1579.PNG>
+        <div class=notes>
+        <p>-
+        </p>
+        Similar situation to ours but with optional, but the same problem noticed - converting ctor can't be used
+        withoud explicit std::move on return. Reported in 2012, resolved in 2014.
+        </div>
+        </div>
+<!-- =================================================================================================== -->
+        <div id="Move6" class="step" data-x="10400" data-y="2400" data-z="300">
+        <p class=title>DR1579 resolution</p>
+        <img src=images/rvoMove/DR1579_resolution.PNG>
+        <p class=left> wording in C++14
+        <p class=left> added retrospectively to C++11 with C++14 standard publication
+        <p>
+        <div class=notes>
+        <p>-
+        </p> 
+        </div>
+        </div>
+<!-- =================================================================================================== -->
+        <div id="Move7" class="step" data-x="9100" data-y="2400" data-z="0" style="font-size:30">
+        <pre class=left><code>
+unique_ptr&lt<strong>MixerInterface</strong>> create()
+{
+    auto mixer = make_unique&lt<strong>Mixer</strong>>();
+    return <strong>mixer</strong>;
+}       </code></pre>
+        <p><strong>pre</strong> DR1579 compiler reasoning:
+        <p class=left>- can I perform copy elision? No, types are different.
+        <p class=left>- let's create new object.
+        <p class=left>- can I treat object as rvalue and try to use move ctor for this?
+        <p class=left>- no, criteria here are tied with copy elision.
+        <p class=left>- ctor overload resolution
+        <p class=left>- dammit, only move converting ctor available, error.
+        <div class=notes>
+        <p>-
+        </p>
+        Ok, so we can go back to our non compiling eamples.
+        Reasoning of the old compiler was like this: can i perform copy elision? No, since types returned and to be 
+        returned are different. Let's create new object. Can I treat object as rvalue and use move ctor for this?
+        No, since criteria here is coupled with criteria for copy elision. So need to use copy ctor, which is deleted.
+        Dammit, error...
+        Exactly the same for example with const.
+        
+        Newer compiler follows new rules that are not so tightly coupled with copy elision criteria - 
+        object of automatic storage doesn't have to be of the same type anymore.
+        </div>
+        </div>
+<!-- =================================================================================================== -->
+        <div id="Move8" class="step" data-x="9100" data-y="1600" data-z="0" style="font-size:30">
+        <pre class=left><code>
+unique_ptr&lt<strong>const MixerInterface</strong>> create()
+{
+    auto mixer = make_unique&lt<strong>MixerInterface</strong>>();
+    return mixer;
+}       </code></pre>
+        <p><strong>post</strong> DR1579 compiler reasoning:
+        <p class=left>- can I perform copy elision? No, types are different.
+        <p class=left>- let's create new object.
+        <p class=left>- can I treat object as rvalue and try to use move ctor for this?
+        <p class=left>- yes, it's an object with automatic storage duration, go ahead
+        <p class=left>- ctor overload successful, converting move ctor chosen
+        <div class=notes>
+        <p>-
+        </p>
+        </div>
+        </div>
+<!-- =================================================================================================== -->
+        <div id="Move9" class="step" data-x="9100" data-y="800" data-z="0" style="font-size:30">
+        <p style="font-size:40">So why class hierarchy compiled on old compiler?</p>
+        <pre class=left><code>
+<strong>MixerInterface</strong> create()
+{
+    <strong>Mixer</strong> x;
+    return x;
+}
+        </code></pre>
+        <div class=notes>
+        <p>-
+        </p>
+        Ok so one can ask why this example didn't fail? We have similar situation, with different types returned and
+        to be returned.
+        </div>
+        </div>
+<!-- =================================================================================================== -->
+        <div id="Move10" class="step" data-x="7800" data-y="800" data-z="0">
+        <p class=title>Return statement</p>
+        <p class=left>evaluates the expression
+        <p class=left>terminates current function
+        <p class=left>and returns the result of the expression to the caller,
+        <p class=left>after implicit conversion to the function return type. 
+        <div class=notes>
+        <p>- when we look at return statement description
+        <p>- ...
+        <p>- implicit converion is important for us
+        </p>
+        </div>
+        </div>
+<!-- =================================================================================================== -->
+        <div id="Move11" class="step" data-x="7800" data-y="1600" data-z="0" style="font-size:30">
+        <pre class=left><code>
+<strong>MixerInterface</strong> create()
+{
+    <strong>Mixer</strong> x;
+    return x;
+}       </code></pre>
+        <p><strong>pre</strong> DR1579 compiler reasoning:
+        <p class=left>- can I perform copy elision?
+        <br>- no cause different types.
+        <br>- evaluate expression.
+        <br>- can I treat object as rvalue and try to use move ctor for this?
+        <br>- no, since criteria are the same as for copy elision.
+        <br>- so need to treat it as lvalue.
+        <br>- implicit cast to return type
+        <br>- ctor overload resolution - copy ctor
+        <p>
+        <p class=left>In unique_ptrs both decisions were also negative, but no implicit cast was available.
+        <div class=notes>
+        <p>- 
+        </p>
+        </div>
+        </div>
+<!-- =================================================================================================== -->
+        <div id="Move12" class="step" data-x="7800" data-y="2400" data-z="0" style="font-size:30">
+        <pre class=left><code>
+<strong>MixerInterface</strong> create()
+{
+    <strong>Mixer</strong> x;
+    return x;
+}       </code></pre>
+        <p><strong>post</strong> DR1579 compiler reasoning:
+        <p class=left>- can I perform copy elision?
+        <br>- no cause different types.
+        <br>- evaluate expression.
+        <br>- can I treat object as rvalue and try to use move ctor for this?
+        <br><strong>- yes, it's an object with automatic storage duration, go ahead
+        <br>- type of ctor arg is not rvalue ref to its param's type</strong>
+        <br>- so need to treat as lvalue
+        <br>- implicit cast to return type
+        <br>- ctor overload resolution - copy ctor
+        <div class=notes>
+        <p>- newer comp reasons the same
+        <p>- for decision whether use move ctor uses different from copy elision
+        <p>- so tries to overload ctor with rval ref
+        <p>- overload fails bc no converting ctor for base class present
+        <p>- the rest of mechanism is the same
+        </p>
+        Newr compiler, with bug fixed reasons the same, but for decision whether to use move ctor doesn't use criteria
+        for copy elision but tries to overload ctor with rvalue reference. Overload fails bc base class doesn't have 
+        converting ctor with param of type of Mixer. The rest of mechanism is the same.
+        </div>
+        </div>
+<!-- =================================================================================================== -->
+        <div id="Move13" class="step" data-x="7800" data-y="3200" data-z="0">
+        <p class=title>Back to class hierarchy example</p>
+        <p>Why gcc 8.1+ uses move?</p>
+        <pre class=left><code>
+MixerInterface create()
+{
+    Mixer x;
+    return x;
+    // gcc 8.1+     - move ctor
+    // gcc 8.0-     - copy ctor
+    // clang 8.0.0  - copy ctor
+    // c++ standard - copy ctor
+}
+        </code></pre>
+        <div class=notes>
+        <p>- last question to answer
+        <p>- why ...
+        <p>- copy is conformant to standard
+        <p>- gcc engineers try to be clever here and are ahead
+        <p>- there's a proposal suggesting to standardize this example
+        </p>
+        We have last question to answer - why in this example pre 8.0 gcc and all clang is performing a copy and gcc+ is doing move?
+        Actually it's the copy that is conformant with standard. But gcc engineers try to be clever and are little bit ahead here,
+        there's a proposal that suggests resolving move ctor in such case. 
+        </div>
+        </div>
+<!-- =================================================================================================== -->
+        <div id="Move14" class="step" data-x="9100" data-y="3200" data-z="0">
+        </div>
+<!-- =================================================================================================== -->
+        <div id="Move15" class="step" data-x="10400" data-y="3200" data-z="0">
+        </div>
+<!-- =================================================================================================== -->
+        <div id="Move16" class="step" data-x="10400" data-y="4000" data-z="0">
+        </div>
         <div class="step" data-x="9100" data-y="4000" data-z="0">
-            asdasda</div>
+        </div>
         <div class="step" data-x="7800" data-y="4000" data-z="0">
-            asdasda</div>
+        </div>
         <div class="step" data-x="11700" data-y="0" data-z="0">asdasda</div>
         <div class="step" data-x="11700" data-y="800" data-z="0">
-            asdasda</div>
+        </div>
         <div class="step" data-x="11700" data-y="1600" data-z="0">
-            asdasda</div>
+        </div>
         <div class="step" data-x="11700" data-y="2400" data-z="0">
-            asdasda</div>
+        </div>
         <div class="step" data-x="11700" data-y="3200" data-z="0">
-            asdasda</div>
+        </div>
         <div class="step" data-x="11700" data-y="4000" data-z="0">
-            asdasda</div>
+        asd
+        </div>
         <!--
             <div id="slide2" class="step" data-x="1200" "data-y="0" data-z="0">
                 <p>This Slide Moves From Right To Left</p>

@@ -1,3 +1,4 @@
+DR1579 rvoMove screeny zrob jeszcze raz na monitorze bo za szerokie
 W poprzednim rozdziale dodaj tytuly. I dodaj jeszcze output z kompilacji przykladow dajacych error najnowszym clangiem (jesli nie dalem jeszcze).
 Wrzuc  w sekcji ze gcc, std11, info ze make_unique byl customowa funcja (justo to be precise)
 
@@ -235,8 +236,8 @@ Reasoning of the old compiler was like this: can i perform copy elision? No, sin
 returned are different. Let's create new object. Can I treat object as rvalue and use move ctor for this? No, since criteria here is coupled with criteria for copy elision. So need to use copy ctor, which is deleted. Dammit, error...
 Exactly the same for example with const.
 
-Newer compiler follows new rules that are not so tightly coupled with copy elision criteria - automatic storage 
-duration is 
+Newer compiler follows new rules that are not so tightly coupled with copy elision criteria - object of automatic storage doesn't have to be of the same type anymore.
+
 
 
 - Why class hierarchy compiles? Object slicing and return sequencing
