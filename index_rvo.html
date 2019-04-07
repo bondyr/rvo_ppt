@@ -1162,8 +1162,8 @@ string g(string && x) { return x; }
         <p class=title>
         P1155R2<br>
         More implicit moves</p>
-        <p>David Stone<br>
-        Arthur O'Dwyer</p>
+        <p>Arthur O'Dwyer<br>
+        David Stone</p>
         <p>2018-future</p>
         <p class=link>http://quuxplusone.github.io/draft/d1155-more-implicit-moves.html</p>
         <div class=notes>
@@ -1435,10 +1435,108 @@ there're optimization areas to work on. That's amazing.
         </div>
         </div>
 <!-- =================================================================================================== -->        
-        <div id="Future23" class="step" data-x="3900" data-y="-7000" data-z="0">         
-        <p class=title>Thank you</p><br><br>
-        <p>https://github.com/bondyr/rvo_ppt
-        <p>Lkbondyra@gmail.com</p>
+        <div id="Future23" class="step" data-x="3900" data-y="-7000" data-z="0" style="font-size:26px;">
+        <p class=title>References</p>         
+        <a href=
+        "http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0527r1.html" style="float:left;">
+        David Stone - P0527R1 Implicitly move from rvalue references in return statements
+        </a><br>
+        <a href=
+        "http://quuxplusone.github.io/draft/d1155-more-implicit-moves.html" style="float:left;">
+        Arthur O'Dwyer, David Stone - P1155R2 More implicit moves
+        </a><br>
+        <a href=
+        "https://apolukhin.github.io/papers/ultimate_copy_elision_r1.html" style="float:left;">
+        Antony Polukhin - P0889R1 Ultimate copy elision
+        </a><br>
+        <a href=
+        "https://www.youtube.com/watch?v=hA1WNtNyNbo" style="float:left;">
+        Arthur O'Dwyer - RVO harder than it looks - CppCon 2018
+        </a><br>
+        <a href=
+        "https://www.youtube.com/watch?v=IZbL-RGr_mk" style="float:left;">
+        John Kalb - Copy elision - CppCon 2018
+        </a><br>
+        <a href=
+        "https://jonasdevlieghere.com/guaranteed-copy-elision" style="float:left;">
+        Jonas Devlieghere - Guaranteed Copy Elision
+        </a><br>
+        <a href=
+        "https://blog.tartanllama.xyz/guaranteed-copy-elision" style="float:left;">
+        Simon Brand - Guaranteed Copy Elision Does Not Elide Copies
+        </a><br>
+        <a href=
+        "http://definedbehavior.blogspot.com/2011/08/value-semantics-copy-elision.html" style="float:left;">
+        David Rodriguez - Value semantics: Copy elision 
+        </a><br>
+        <a href=
+        "http://definedbehavior.blogspot.com/2011/08/value-semantics-nrvo.html" style="float:left;">
+        David Rodriguez - Value semantics: NRVO
+        </a><br>
+        <a href=
+        "https://www.ibm.com/developerworks/community/blogs/5894415f-be62-4bc0-81c5-3956e82276f3/entry/RVO_V_S_std_move"
+        style="float:left;">
+        Zhao Wu IBM - RVO V.S. std::move
+        </a><br>
+        <a href=
+        "http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2002/n1377.htm" style="float:left;">
+        Move semantics proposal from 2002
+        </a><br>        
+        <a href=
+        "http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#1579" style="float:left;">
+        C++11 RVO defect report
+        </a><br>
+        <a href=
+        "https://en.cppreference.com/w/cpp/language/return" style="float:left;">
+        cppreference - return statement
+        </a><br>
+        <a href=
+        "https://en.cppreference.com/w/cpp/language/copy_elision" style="float:left;">
+        cppreference - copy elision
+        </a><br>
+        <a href=
+        "https://en.cppreference.com/w/cpp/language/value_category" style="float:left;">
+        cppreference - value category
+        </a><br>
+        <a href=
+        "" style="float:left;">
+        
+        </a><br>
+        
+<!-- David Stone - P0527R1 Implicitly move from rvalue references in return statements - http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0527r1.html</p> -->
+
+<!-- Arthur O'Dwyer, David Stone - P1155R2 More implicit moves - http://quuxplusone.github.io/draft/d1155-more-implicit-moves.html -->
+
+<!-- Antony Polukhin - P0889R1 Ultimate copy elision - -->
+<!-- https://apolukhin.github.io/papers/ultimate_copy_elision_r1.html -->
+
+<!-- Arthur O'Dwyer - "RVO harder than it looks" CppCon 2018 - https://www.youtube.com/watch?v=hA1WNtNyNbo -->
+
+<!-- John Kalb - "Copy elision" CppCon 2018 - https://www.youtube.com/watch?v=IZbL-RGr_mk -->
+
+<!-- Jonas Devlieghere - "Guaranteed Copy Elision" - https://jonasdevlieghere.com/guaranteed-copy-elision -->
+
+<!-- Simon Brand - "Guaranteed Copy Elision Does Not Elide Copies" - https://blog.tartanllama.xyz/guaranteed-copy-elision -->
+
+<!-- David Rodriguez - "Value semantics: Copy elision"  -->
+<!-- http://definedbehavior.blogspot.com/2011/08/value-semantics-copy-elision.html -->
+
+<!-- David Rodriguez - "Value semantics: NRVO "  -->
+<!-- http://definedbehavior.blogspot.com/2011/08/value-semantics-nrvo.html -->
+
+<!-- Zhao Wu IBM - RVO V.S. std::move - -->
+<!-- https://www.ibm.com/developerworks/community/blogs/5894415f-be62-4bc0-81c5-3956e82276f3/entry/RVO_V_S_std_move -->
+
+<!-- Move semantics proposal from 2002: -->
+<!-- http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2002/n1377.htm -->
+
+<!-- C++11 defect report -->
+<!-- http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#1579 -->
+
+
+<!-- https://en.cppreference.com/w/cpp/language/return -->
+<!-- https://en.cppreference.com/w/cpp/language/copy_elision -->
+<!-- https://en.cppreference.com/w/cpp/language/value_category         -->
         <div class=notes>
         <p>-
         </p>
@@ -1446,6 +1544,9 @@ there're optimization areas to work on. That's amazing.
         </div>
 <!-- =================================================================================================== -->        
         <div id="Future24" class="step" data-x="5200" data-y="-7000" data-z="0">         
+        <p class=title>Thank you</p><br><br>
+        <p>https://github.com/bondyr/rvo_ppt
+        <p>Lkbondyra@gmail.com</p>
         <div class=notes>
         <p>-
         </p>
