@@ -577,29 +577,85 @@ void fun6() {
 <!-- =================================================================================================== -->
 		<div id="copyElision11" class="step" data-x="1300" data-y="1600" data-z="0">
 		<p class=title>Branching</p>
-			asdasda
+			<pre><code><p style="text-align: left">
+// no RVO
+Mixer create1(int q) {
+    Mixer x1, x2;
+    if(q > 4)
+        return x1;
+    else
+        return x2;
+}
+			</p></code></pre>
+		<div class=notes>
+		<p>- no RVO cause needs to know which object to put into caler storage
+		</div>
 		</div>
 <!-- =================================================================================================== -->
 		<div id="copyElision12" class="step" data-x="1300" data-y="2400" data-z="0">
-			asdasda</div>
+			<pre><code><p style="text-align: left">
+// optimized for RVO
+Mixer create2(int q) { 
+    if(q > 4) {
+        Mixer x1, x2;
+        return x1;
+    }
+    else {
+        Mixer x1, x2;
+        return x2;
+    }
+}
+			</p></code></pre>
+		<div class=notes>
+		<p>- wise compiler can optimise to this - RVO
+		</div>
+		</div>
 <!-- =================================================================================================== -->
 		<div id="copyElision13" class="step" data-x="1300" data-y="3200" data-z="0">
-			asdasda</div>
-		<div class="step" data-x="2600" data-y="3200" data-z="0">
-			asdasda</div>
-		<div class="step" data-x="3900" data-y="3200" data-z="0">
-			asdasda</div>
-		<div class="step" data-x="3900" data-y="4000" data-z="0">
-			asdasda</div>
-		<div class="step" data-x="2600" data-y="4000" data-z="0">
-			asdasda</div>
-		<div class="step" data-x="1300" data-y="4000" data-z="0">
-			asdasda</div>
-		<div class="step" data-x="5200" data-y="0" data-z="0">asdasda</div>
-		<div class="step" data-x="5200" data-y="800" data-z="0">asdasda
+			<pre><code><p style="text-align: left">
+bool pred(Mixer& x1, Mixer& x2)
+{
+    return x1 > x2;
+}
+
+
+// no RVO possible
+Mixer create3(int q) {
+    Mixer x1, x2;
+    if(pred(x1,x2))
+        return x1;
+    else
+        return x2;
+}
+			</p></code></pre>
+		<div class=notes>
+		<p>- no RVO cause both objects need to be created before decision which should be returned
+		</div>			
 		</div>
-		<div class="step" data-x="5200" data-y="1600" data-z="0">
+<!-- =================================================================================================== -->
+		<div id="copyElision14" class="step" data-x="2600" data-y="3200" data-z="0">
 			asdasda</div>
+<!-- =================================================================================================== -->			
+		<div id="copyElision15" class="step" data-x="3900" data-y="3200" data-z="0">
+			asdasda</div>
+<!-- =================================================================================================== -->			
+		<div id="copyElision16" class="step" data-x="3900" data-y="4000" data-z="0">
+			asdasda</div>
+<!-- =================================================================================================== -->			
+		<div id="copyElision17" class="step" data-x="2600" data-y="4000" data-z="0">
+			asdasda</div>
+<!-- =================================================================================================== -->			
+		<div id="copyElision18" class="step" data-x="1300" data-y="4000" data-z="0">
+			asdasda</div>
+<!-- =================================================================================================== -->			
+		<div id="copyElision19" class="step" data-x="5200" data-y="0" data-z="0">asdasda</div>
+<!-- =================================================================================================== -->		
+		<div id="copyElision20" class="step" data-x="5200" data-y="800" data-z="0">asdasda
+		</div>
+<!-- =================================================================================================== -->		
+		<div id="copyElision21" class="step" data-x="5200" data-y="1600" data-z="0">
+			asdasda</div>
+<!-- =================================================================================================== -->			
 		<div class="step" data-x="5200" data-y="2400" data-z="0">
 			asdasda</div>
 		<div class="step" data-x="5200" data-y="3200" data-z="0">
