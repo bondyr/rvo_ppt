@@ -10,6 +10,13 @@ body {
     text-shadow: 1px 1px 2px #000;
 }
 
+#table_style {
+  font-family: 'Armata', sans-serif;
+  font-size:30px;
+  border-collapse: collapse;
+  width: 100%;
+}
+
 .title {
     font-size: 50px;
 }
@@ -1076,6 +1083,7 @@ MixerInterface create()
         regarding enhancing criteria for either copy elision or creating objects on return with move operation.
         </div>
         </div>
+<!-- =================================================================================================== -->        
         <div id="Future2" class="step" data-x="2600" data-y="-3000" data-z="0">
         <p class=title>
         P0527R1<br>
@@ -1088,6 +1096,7 @@ MixerInterface create()
         </p>
         </div>
         </div>
+<!-- =================================================================================================== -->        
         <div id="Future3" class="step" data-x="3900" data-y="-3000" data-z="0">
         <pre class=left><code>
 unique_ptr<T> f(unique_ptr<T> && ptr) {
@@ -1105,6 +1114,7 @@ unique_ptr<T> f(unique_ptr<T> && ptr) {
         </p>
         </div>
         </div>
+<!-- =================================================================================================== -->        
         <div id="Future4" class="step" data-x="5200" data-y="-3000" data-z="0">
         <p class=title>consider generic case</p>
         <pre class=left><code>
@@ -1120,6 +1130,7 @@ auto f(args...) {
         </p>
         </div>
         </div>
+<!-- =================================================================================================== -->        
         <div id="Future5" class="step" data-x="1300" data-y="-3800" data-z="0">
         <p class=title>Surprising results</p>
         <pre class=left><code>
@@ -1134,6 +1145,7 @@ string g(string && x) { return x; }
         </p>
         </div>
         </div>
+<!-- =================================================================================================== -->        
         <div id="Future6" class="step" data-x="2600" data-y="-3800" data-z="0">
         <p class=left>- Similar suggestions regarding rvalue reference function parameters used in 
         throw expression and exception declaration.
@@ -1145,58 +1157,300 @@ string g(string && x) { return x; }
         </p>
         </div>
         </div>
+<!-- =================================================================================================== -->        
         <div id="Future7" class="step" data-x="3900" data-y="-3800" data-z="0">
-        asd!!!
+        <p class=title>
+        P1155R2<br>
+        More implicit moves</p>
+        <p>David Stone<br>
+        Arthur O'Dwyer</p>
+        <p>2018-future</p>
+        <p class=link>http://quuxplusone.github.io/draft/d1155-more-implicit-moves.html</p>
         <div class=notes>
-        <p>-
-        </p>
+        <p>- on open-std R1 from November
+        <p>- here R2 from January
+        <p>- presented on cppcon 2018
+        <p>- great talk, just half an hour
+        </p> 
         </div>
         </div>
+<!-- =================================================================================================== -->        
         <div id="Future8" class="step" data-x="5200" data-y="-3800" data-z="0">
-        asd!!!
+        <p class=title>Paper starts with:</p><br>
+        <p class=left>"Programmers expect <strong>return x;</strong> to trigger copy elision; or, at worst, to implicitly move from x instead of copying.
+        Occasionally, C++ violates their expectations and performs an expensive copy anyway. [...]"</p>
         <div class=notes>
         <p>-
         </p>
         </div>
         </div>
+<!-- =================================================================================================== -->        
         <div id="Future9" class="step" data-x="1300" data-y="-4600" data-z="0">
-        asd!!!
+        <p class titile>Current iso cpp wording has issues</p><br>
+        <img src=images/proposals/cpp17_wording_issues.PNG>
         <div class=notes>
         <p>-
         </p>
         </div>
         </div>
+<!-- =================================================================================================== -->        
         <div id="Future10" class="step" data-x="2600" data-y="-4600" data-z="0">
-        asd!!!
+        <p class=title>- Throwing is pessimized</p>
+        <pre class=left><code>
+void seven(Widget w) {
+    throw w;
+}        </code></pre>
+        <p class=left>Throw function parameter -
+        <br>no copy elision, and no implicit move (the object is copied)
+        <p class=left>Note:</p>
+        <table id="table_style">
+          <tr>
+            <td>current Standard wording</td>
+            <td>- copy</td>
+          </tr>
+          <tr>
+            <td>GCC</td>
+            <td>- copy</td>
+          </tr>
+          <tr>
+            <td>Clang 4.0.1+, MSVC 2015+, ICC 16.0.3+</td>
+            <td>- implicit move</td>
+          </tr>  
+        </table>         
         <div class=notes>
-        <p>-
+        <p>- paper goes with simple examples as c.e or move constru
+        <p>- we've been through most of them
+        <p>- switches to examples that surprise
         </p>
+        Paper goes presenting simple examples that present as expected copy elision or move construction, and switches 
+        to examples that surprisingly present copy operation.
+        We can find there our RVO, NRVO examples, then our example with unique_ptr to class hierarchy and then new ones.
         </div>
         </div>
+<!-- =================================================================================================== -->        
         <div id="Future11" class="step" data-x="3900" data-y="-4600" data-z="0">
-        asd!!!
+        <p class=title>- Non-constructor conversion is pessimized</p>
+        <pre class=left><code>
+struct To {
+    operator Widget() const &;
+    operator Widget() &&;
+};
+
+Widget nine() {
+    To t;
+    return t;
+}        </code></pre>
+        <p class=left>Conversion operator instead of ctor -
+        <br>no copy elision, and no implicit move (the object is copied)
         <div class=notes>
         <p>-
         </p>
         </div>
         </div>
-        <div id="Future12" class="step" data-x="5200" data-y="-4600" data-z="0">
-        asd!!!
+<!-- =================================================================================================== -->        
+        <div id="Future12" class="step" data-x="5200" data-y="-4600" data-z="0" style="font-size:28px;">
+        <p style="font-size:35px">- By-value sinks are pessimized</p>
+        <pre class=left><code>
+struct Fowl {
+    Fowl(Widget);
+};
+
+Fowl eleven() {
+    Widget w;
+    return w;
+}        </code></pre>
+        <p class=left>Value instead of rvalue ref -
+        <br>no copy elision, and no implicit move (the Widget object is copied)
+        <p class=left>Note:</p>
+        <table id="table_style">
+          <tr>
+            <td>current Standard wording</td>
+            <td>- copy</td>
+          </tr>
+          <tr>
+            <td>Clang, ICC, MSVC</td>
+            <td>- copy</td>
+          </tr>
+          <tr>
+            <td>GCC 5.1+</td>
+            <td>- implicit move</td>
+          </tr>  
+        </table>         
         <div class=notes>
         <p>-
         </p>
         </div>
         </div>
-<!-- 
-        <div id="Move14" class="step" data-x="9100" data-y="3200" data-z="0">
+<!-- =================================================================================================== -->        
+        <div id="Future13" class="step" data-x="1300" data-y="-5400" data-z="0">         
+        <p>- Slicing is pessimized</p>
+        <pre class=left><code>
+Base thirteen() {
+    Derived result;
+    return result;
+}       </code></pre>
+        <p class=left>Different object's type -
+        <br>no copy elision, and no implicit move (the object is copied)
+        <p class=left>Note:</p>
+        <table id="table_style">
+          <tr>
+            <td>current Standard wording</td>
+            <td>- copy</td>
+          </tr>
+          <tr>
+            <td>Clang, MSVC</td>
+            <td>- copy</td>
+          </tr>
+          <tr>
+            <td>GCC 8.1+, ICC 18.0.0+</td>
+            <td>- implicit move</td>
+          </tr>  
+        </table>         
+        <div class=notes>
+        <p>- here's our mistery with class hierarchy
+        <p>- according to standard copy, gcc is ahead.
+        </p>
+        And here's our mistery with class hierarchy and copy vs move on clang and gcc is solved.
+        According to standard copy, gcc is ahead.
         </div>
-===================================================================================================
-        <div id="Move15" class="step" data-x="10400" data-y="3200" data-z="0">
         </div>
-===================================================================================================
-        <div id="Move16" class="step" data-x="10400" data-y="4000" data-z="0">
+<!-- =================================================================================================== -->        
+        <div id="Future14" class="step" data-x="2600" data-y="-5400" data-z="0" style="font-size:30px">         
+        <p style="font-size:40px">"We propose to remove all four of these unnecessary limitations."</p>
+        
+        <p class=left>- already implemented in clang (available since 02.2018)
+        <p class=left>- -Wreturn-std-move (enabled as part of -Wmove, -Wmost, and -Wall)
+        <p class=left>- overload resolution done twice - standard rules and the ones proposed here
+        <p class=left>- if they differ, then diagnostic warning is emitted suggesting adding explicit std::move since copy otherwise
+        <p class=left>- clang still doesn't diagnose "By value sinks"
+        <div class=notes>
+        <p>-
+        </p>
         </div>
--->
+        </div>
+<!-- =================================================================================================== -->        
+        <div id="Future15" class="step" data-x="3900" data-y="-5400" data-z="0">         
+        <p class=title>Feedback from production</p>
+        <p><strong>Plenty of true positives</strong><br>
+        <p>Proven with clang flag enabled on Chromium and LibreOffice projects</p>
+        <p><br><strong>Lack of false positives</strong>
+        <p>Just one complaint from Mozzilla saying that performance benefit was too little when compared to ugliness
+        of explicit std::move. Actually it's not even mistake.</p>
+        <div class=notes>
+        <p>- 11 months for feedback
+        <p>- R2 - ++x
+        </p>
+        </div>
+        </div>
+<!-- =================================================================================================== -->        
+        <div id="Future16" class="step" data-x="5200" data-y="-5400" data-z="0">         
+        <p class=title>P0889R1<br>
+        Ultimate copy elision</p>
+        <p>Antony Polukhin</p>
+        <p>2018-future</p>
+        <p class=link>https://apolukhin.github.io/papers/ultimate_copy_elision_r1.html</p>
+        <div class=notes>
+        <p>- on open-std R0 ver
+        </p>
+        </div>
+        </div>                
+<!-- =================================================================================================== -->        
+        <div id="Future17" class="step" data-x="1300" data-y="-6200" data-z="0">         
+        <p class=title>A. Teaching practice</p>
+        <p class=left>- code with numerous functions since we've been taught for decades to delegate to funs and classes
+        <p class=left>- compilers inline more aggressievly and inline a lot
+        <div class=notes>
+        <p>-
+        </p>
+        </div>
+        </div>                
+<!-- =================================================================================================== -->        
+        <div id="Future18" class="step" data-x="2600" data-y="-6200" data-z="0">         
+        <p class=title>B. Copy elision rules
+        <p class=left>- current rules for copy elision mostly assume that a function from source code remains a function in a binary
+        <p class=left>- inlining, aliasing reasoning, and link time optimization open new world on possible optimizations since fun params and its body is seen together
+        <p class=left>- current rules are suboptimal for modern compilers: they prevent optimizations.
+        <div class=notes>
+        <p>-
+        </p>
+        </div>
+        </div>                
+<!-- =================================================================================================== -->        
+        <div id="Future19" class="step" data-x="3900" data-y="-6200" data-z="0">         
+        <p class=title>C. std::move/rvalues is not a panacea
+        <p>move operation is not a solution since<br><br>
+        std::array, std::basic_string, std::function, std::variant, std::optional and others<br><br>
+        may store a lot of data on stack
+        <div class=notes>
+        <p>-
+        </p>
+        </div>
+        </div>                
+<!-- =================================================================================================== -->        
+        <div id="Future20" class="step" data-x="5200" data-y="-6200" data-z="0">         
+        <p class=title>Summary</p>
+        <p>year 2002 - the oldest proposal on move semantics found
+        <br>move semantics present for almost 2 decades now
+        <br>there're still areas to optimize</p>
+        <img src=images/proposals/move_semantics_2002_trimmed.PNG>
+        <div class=notes>
+        <p>-
+        </p>
+Let's summarize.
+I briefly looked for proposals on move semantics and the oldest I found was from 2002.
+Even though the idea of move semantics started almost 2 decades ago and is present in standard for almost a decade,
+there're optimization areas to work on. That's amazing.         
+        </div>
+        </div>
+<!-- =================================================================================================== -->        
+        <div id="Future21" class="step" data-x="1300" data-y="-7000" data-z="0">         
+        <p class=title>The journey covered</p>
+        <p>- non compiling unique_ptr examples
+        <p>- copy elision mechanics and rules
+        <p>- RVO with move semantics
+        <p>- changes and defects in C++11, C++14, C++17
+        <p>- new proposals enhancing nr of contexts for copy elision and move object creation on fun return<br>
+        <div class=notes>
+        <p>-
+        </p>
+        We've started with non compiling example, then went through copy elision mechanics and rules,
+        then through creating new object with move operation on function return and criteria for this in c++11,14,17.
+        Finally we've seen current proposals that aim to yet ehnace no of contexts where copy elision or move object creation 
+        can be used.
+        </div>
+        </div>
+<!-- =================================================================================================== -->        
+        <div id="Future22" class="step" data-x="2600" data-y="-7000" data-z="0">         
+        <p class=title>Journey memoirs</p>
+        <p>- you can't always rely on what your compiler tells you
+        <p>- upgrade compilers in your projects
+        <p>- upgrade C++ standard<br><br>
+        <p>- less time on investigating bugs
+        <p>- increased performance
+        <p>- cleaner codebase</p>
+        <div class=notes>
+        <p>-
+        </p>
+        What I'd like you to remember from this thrilling journey we've just had, is that:
+        </div>
+        </div>
+<!-- =================================================================================================== -->        
+        <div id="Future23" class="step" data-x="3900" data-y="-7000" data-z="0">         
+        <p class=title>Thank you</p><br><br>
+        <p>https://github.com/bondyr/rvo_ppt
+        <p>Lkbondyra@gmail.com</p>
+        <div class=notes>
+        <p>-
+        </p>
+        </div>
+        </div>
+<!-- =================================================================================================== -->        
+        <div id="Future24" class="step" data-x="5200" data-y="-7000" data-z="0">         
+        <div class=notes>
+        <p>-
+        </p>
+        </div>
+        </div>        
     </div>
 
     <div class="fallback-message">

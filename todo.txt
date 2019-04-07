@@ -328,8 +328,8 @@ current Standard wording              - copy
 GCC                                   - copy
 Clang 4.0.1+, MSVC 2015+, ICC 16.0.3+ - implicit move
 
+//ctor
 - Non-constructor conversion is pessimized
-// ctor
 struct To {
     operator Widget() const &;
     operator Widget() &&;
@@ -340,7 +340,6 @@ Widget nine() {
     return t;  // no copy elision, and no implicit move (the object is copied)
 }
 
-// Conversion operator
 
 - By-value sinks are pessimized
 // rvalue ref
@@ -375,6 +374,7 @@ current Standard wording              - copy
 Clang, MSVC                           - copy
 GCC 8.1+, ICC 18.0.0+                 - implicit move
 
+
 - "We propose to remove all four of these unnecessary limitations."
 
 - already implemented in clang
@@ -384,8 +384,6 @@ overload resolution according to both rule - standard and the ones in this propo
 if they differ, then diagnostic warning is emitted suggesting adding explicit std::move since copy otherwise
 but clang still doesn't diagnose "By value sinks"
 
-This feature has effectively already been implemented in Clang since February 2018; see [D43322]. Under the diagnostic option -Wreturn-std-move (which is enabled as part of -Wmove, -Wmost, and -Wall), the compiler performs overload resolution according to both rules — the standard rule and also a rule similar to the one proposed in this proposal. If the two resolutions produce different results, then Clang emits a warning diagnostic explaining that the return value will not be implicitly moved and suggesting that the programmer add an explicit std::move.
-However, Clang does not diagnose the examples from §1.3 By-value sinks.
 
 - Plenty of true positives
 proven with clang flag enabled on Chromium and LibreOffice projects
@@ -393,6 +391,11 @@ proven with clang flag enabled on Chromium and LibreOffice projects
 - Lack of false positives
 Just one complaint from Mozzilla saying that performance benefit was too little when copared to ugliness of explicit std::move.
 Actually it's not a false positive.
+
+
+
+
+
 
 - P0889R1 - Ultimate copy elision
 Antony Polukhin
