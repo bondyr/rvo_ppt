@@ -27,6 +27,9 @@ body {
     text-align: left;
 }
 
+.link {
+    font-size:25;
+}
 /* .code_style { */
 /*     text-align: left; */
 /*     font-family: "Monospace"; */
@@ -869,8 +872,8 @@ Mixer fun2() {
 <!-- =================================================================================================== -->
         <div id="Move5" class="step" data-x="10400" data-y="1600" data-z="20">
         <p class=title>DR1579</p>
-        <p style="font-size:25">http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#1579</p>
-        <p style="font-size:25">2012-2014
+        <p class=link>http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#1579</p>
+        <p class=link>2012-2014
         <p>
         <img src=images/rvoMove/DR1579.PNG>
         <div class=notes>
@@ -1055,44 +1058,88 @@ MixerInterface create()
 <!-- =================================================================================================== -->
 <!--                                    Chapter IV - Future of RVO move semantics                        -->
 <!-- =================================================================================================== -->
-<!-- =================================================================================================== -->
         <div id="Future1" class="step" data-x="1300" data-y="-3000" data-z="0">
-        asd!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        <p class=title>Current/future RVO optimization proposals</p>
         <div class=notes>
-        <p>-
+        <p>- we went so far through examples
+        <p>- not a simple choice and evolving
+        <p>- in what state is it now?
+        <p>- already seen wording for c++11, 14, 17 modifies
+        <p>- what's next or currently?
+        <p>- 3 proposals, regarding enhancing criteria
         </p>
+        So generally we went through non compiling examples on old compilers, examples that currently on one compiler
+        are copied and on the other are moved, we can cleary see that decision how create objects on return 
+        is not a simple choice and is still evolving. So in what state it is now?
+        We've already seen wording for cpp11 and cpp14 standard, cpp17 modifies it a little with deferred temporary materialization.
+        What's next? Or... actually currently. There're already 3 proposals being processed,
+        regarding enhancing criteria for either copy elision or creating objects on return with move operation.
         </div>
         </div>
         <div id="Future2" class="step" data-x="2600" data-y="-3000" data-z="0">
-        asd!!!
+        <p class=title>
+        P0527R1<br>
+        Implicitly move from rvalue references in return statements</p>
+        <p>David Stone</p>
+        <p>2017</p>
+        <p class=link>http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0527r1.html</p>
         <div class=notes>
         <p>-
         </p>
         </div>
         </div>
         <div id="Future3" class="step" data-x="3900" data-y="-3000" data-z="0">
-        asd!!!
+        <pre class=left><code>
+unique_ptr<T> f(unique_ptr<T> && ptr) {
+    return ptr;
+    //could go with return move(ptr);
+}
+        </code></pre>
+        <p class=left>error: use of deleted function<br>
+        'unique_ptr<T>::unique_ptr(const unique_ptr<T>&)'</p> 
+
         <div class=notes>
-        <p>-
+        <p>- compiler error bc it's not automatic storage duration
+        <p>- could fix be move
+        <p>- but then again inhibit RVO
         </p>
         </div>
         </div>
         <div id="Future4" class="step" data-x="5200" data-y="-3000" data-z="0">
-        asd!!!
+        <p class=title>consider generic case</p>
+        <pre class=left><code>
+auto f(args...) {
+    decltype(auto) result = some_other_fun();
+    return forward&ltdecltype(result)>(result);
+}
+        </code></pre>
+        <p class=left>with std::forward, RVO inhibited when result is a value
+        <p class=left>without std::forward, doesn't compile when result is rvalue ref and move only 
         <div class=notes>
-        <p>-
+        <p>- may not sound that bad but consider generic case
         </p>
         </div>
         </div>
         <div id="Future5" class="step" data-x="1300" data-y="-3800" data-z="0">
-        asd!!!
+        <p class=title>Surprising results</p>
+        <pre class=left><code>
+// move ctor
+string f(std::string x) { return x; }
+
+// copy ctor - quite surprising...
+string g(string && x) { return x; }
+        </code></pre>
         <div class=notes>
         <p>-
         </p>
         </div>
         </div>
         <div id="Future6" class="step" data-x="2600" data-y="-3800" data-z="0">
-        asd!!!
+        <p class=left>- Similar suggestions regarding rvalue reference function parameters used in 
+        throw expression and exception declaration.
+        <p class=left>- Wording change to include rvalue reference:<br>
+        "an object with automatic storage duration" -> "a movable entity"
+        <p><br><br><br>Proposal was approved by EWG in the Kona 2017 meeting.</p>
         <div class=notes>
         <p>-
         </p>
@@ -1140,15 +1187,6 @@ MixerInterface create()
         </p>
         </div>
         </div>
-
-
-
-
-
-
-
-
-
 <!-- 
         <div id="Move14" class="step" data-x="9100" data-y="3200" data-z="0">
         </div>
@@ -1158,61 +1196,7 @@ MixerInterface create()
 ===================================================================================================
         <div id="Move16" class="step" data-x="10400" data-y="4000" data-z="0">
         </div>
-        <div class="step" data-x="9100" data-y="4000" data-z="0">
-        </div>
-        <div class="step" data-x="7800" data-y="4000" data-z="0">
-        </div>
-        <div class="step" data-x="11700" data-y="0" data-z="0">asdasda</div>
-        <div class="step" data-x="11700" data-y="800" data-z="0">
-        </div>
-        <div class="step" data-x="11700" data-y="1600" data-z="0">
-        </div>
-        <div class="step" data-x="11700" data-y="2400" data-z="0">
-        </div>
-        <div class="step" data-x="11700" data-y="3200" data-z="0">
-        </div>
-        <div class="step" data-x="11700" data-y="4000" data-z="0">
-        asd
-        </div> -->
-        <!--
-            <div id="slide2" class="step" data-x="1200" "data-y="0" data-z="0">
-                <p>This Slide Moves From Right To Left</p>
-            </div>
-
-            <div id="slide3" class="step" data-x="2200" data-y="500">
-                <p>This Slide Moves From Right To Left and Bottom To Top</p>
-            </div>
-
-            <div id="slide4" class="step" data-x="2200" data-y="-500">
-                <p>This Slide Moves Top To Bottom</p>
-            </div>
-
-            <div id="slide5" class="step" data-x="3200" data-rotate="150">
-                <p>This Slide Rotates Clockwise Around z-axis</p>
-            </div>
-
-            <div id="slide6" class="step" data-x="6200" data-scale='3'>
-                <p>This Slide Scales 3 Times</p>
-            </div>
-
-            <div id="slide7" class="step" data-x="4200" data-y='1500' data-z='1500'>
-                <p>Away</p>
-            </div>
-
-            <div id="slide8" class="step" data-x="4900" data-y='1500' data-z='100'>
-                <p>Towards</p>
-            </div>
-
-            <div id="slide9" class="step" data-x="5600" data-y='1500' data-z='-1500'>
-                <p>Futher Towards</p>
-            </div>
- -->
-        <!--
-            <div id="slide10" class="step" data-x="2600" data-y='3000' data-scale='15'>
-                <p>Visualization Slide Positions</p>
-            </div>
- -->
-
+-->
     </div>
 
     <div class="fallback-message">

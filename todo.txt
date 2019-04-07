@@ -1,4 +1,7 @@
+spr jak to wyglada na monitorze.
 DR1579 rvoMove screeny zrob jeszcze raz na monitorze bo za szerokie
+zmien wielkosc slajdow na wieksze?
+
 W poprzednim rozdziale dodaj tytuly. I dodaj jeszcze output z kompilacji przykladow dajacych error najnowszym clangiem (jesli nie dalem jeszcze).
 Wrzuc  w sekcji ze gcc, std11, info ze make_unique byl customowa funcja (justo to be precise)
 
@@ -260,6 +263,11 @@ Newr compiler, with bug fixed reasons the same, but for decision whether to use 
 
 - class hierarchy copy vs move
 We have last question to answer - why in this example pre 8.0 gcc and all clang is performing a copy and gcc+ is doing move? Actually it's the copy that is conformant with standard. But gcc engineers try to be clever and are little bit ahead here, there's a proposal that suggests resolving move ctor in such case. 
+
+
+
+
+
 
 
 ==============================
