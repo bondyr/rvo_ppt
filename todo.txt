@@ -170,7 +170,6 @@ Actually, according to  blog.tartanllama.xyz, it's better to understand it not a
 Mixer fun() {
     int z;
     Mixer x;
-    ...
     return x;
 }
 

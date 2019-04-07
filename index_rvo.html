@@ -630,14 +630,96 @@ Mixer create3(int q) {
         return x1;
     else
         return x2;
-}
-            </p></code></pre>
+}           </p></code></pre>
+        <p>Never depend on side effects in move/copy ctor, as small change in code can allow or inhibit RVO.</p>
         <div class=notes>
         <p>- no RVO cause both objects need to be created before decision which should be returned
+        <p>- never depend on side effects from copy/move ctors
+        <p>- small change may allow or inhibit RVO
+        </p>
         </div>          
         </div>
 <!-- =================================================================================================== -->
         <div id="copyElision14" class="step" data-x="2600" data-y="3200" data-z="0">
+        <p class=title>What's magic behind copy elision</p>
+        <pre class=left><code>
+Mixer fun() {
+    int z;
+    Mixer x;
+    return x;
+}
+
+Mixer y{fun()};
+        </code></pre>
+        <p>How many params fun() takes?
+        <div class=notes>
+        <p>- mechanics behind c.e.
+        </p>
+
+        </div>    
+        </div>
+<!-- =================================================================================================== -->            
+        <div id="copyElision15" class="step" data-x="3900" data-y="3200" data-z="0">
+        <p>0 params</p>
+        <p>?</p>
+        <p>1 param</p>
+
+        <div class=notes>
+        <p>- 
+        </p>
+
+        </div>
+        </div>
+<!-- =================================================================================================== -->            
+        <div id="copyElision16" class="step" data-x="3900" data-y="4000" data-z="0">
+        <img src=images/copyElision/fun_stack1.PNG>
+        <p><br>1 param
+        </div>
+<!-- =================================================================================================== -->            
+        <div id="copyElision17" class="step" data-x="2600" data-y="4000" data-z="0">
+        <img src=images/copyElision/fun_stack2.PNG>
+        </div>
+<!-- =================================================================================================== -->            
+        <div id="copyElision18" class="step" data-x="1300" data-y="4000" data-z="0">
+        <img style="float:right" src=images/copyElision/fun_stack3.PNG>
+        <pre class=left><code>
+Mixer fun() {
+    int z;
+    Mixer x;
+    return x;
+}
+
+Mixer y{fun()};
+        </code></pre>
+        </div>
+<!-- =================================================================================================== -->            
+        <div id="copyElision19" class="step" data-x="5200" data-y="0" data-z="0">
+        <img style="float:right" src=images/copyElision/fun_stack4.PNG>
+        <pre class=left><code>
+Mixer fun() {
+    int z;
+    Mixer x;
+    return x;
+}
+
+Mixer y{fun()};
+        </code></pre>
+        </div>
+<!-- =================================================================================================== -->        
+        <div id="copyElision20" class="step" data-x="5200" data-y="800" data-z="0">
+        <img style="float:right" src=images/copyElision/fun_stack5.PNG>
+        <pre class=left><code>
+Mixer fun() {
+    int z;
+    Mixer x;
+    return x;
+}
+
+Mixer y{fun()};
+        </code></pre>
+        </div>
+<!-- =================================================================================================== -->        
+        <div id="copyElision21" class="step" data-x="5200" data-y="1600" data-z="0">
         <p class=title>RVO in C++17</p>
         <pre><code><p style="text-align: left">
 struct Factory {
@@ -665,7 +747,7 @@ Factory getFactory() { return Factory{}; }
         </div>    
         </div>
 <!-- =================================================================================================== -->            
-        <div id="copyElision15" class="step" data-x="3900" data-y="3200" data-z="0">
+        <div id="copyElision22" class="step" data-x="5200" data-y="2400" data-z="0">
         <p class=title>"Guaranteed copy elision through simplified value categories"</p>
         <br>
         <p class=left>- prvalue - initializer of object</p>
@@ -690,36 +772,17 @@ Factory getFactory() { return Factory{}; }
         without a copy or a move. This means that the copy or move constructor of the object no longer needs to be accessible.
         </div>
         </div>
-<!-- =================================================================================================== -->            
-        <div id="copyElision16" class="step" data-x="3900" data-y="4000" data-z="0">
+<!-- =================================================================================================== -->
+        <div id="copyElision23" class="step" data-x="5200" data-y="3200" data-z="0">
         <p class=title>Actually...</p>
         <p class=left>- it's not copy elision anymore
         <p class=left>- no copy to elide
         <p class=left><strong>- deferred temporary materialization</strong></p>
             
         </div>
-<!-- =================================================================================================== -->            
-        <div id="copyElision17" class="step" data-x="2600" data-y="4000" data-z="0">
-            asdasda</div>
-<!-- =================================================================================================== -->            
-        <div id="copyElision18" class="step" data-x="1300" data-y="4000" data-z="0">
-            asdasda</div>
-<!-- =================================================================================================== -->            
-        <div id="copyElision19" class="step" data-x="5200" data-y="0" data-z="0">asdasda</div>
-<!-- =================================================================================================== -->        
-        <div id="copyElision20" class="step" data-x="5200" data-y="800" data-z="0">asdasda
-        </div>
-<!-- =================================================================================================== -->        
-        <div id="copyElision21" class="step" data-x="5200" data-y="1600" data-z="0">
-            asdasda</div>
-<!-- =================================================================================================== -->            
-        <div class="step" data-x="5200" data-y="2400" data-z="0">
-            asdasda</div>
-        <div class="step" data-x="5200" data-y="3200" data-z="0">
-            asdasda</div>
-        <div class="step" data-x="5200" data-y="4000" data-z="0">
-            asdasda</div>
-        <!--        section 3 -->
+<!-- =================================================================================================== -->
+<!--                                    Chapter II - Move                                         -->
+<!-- =================================================================================================== -->
         <div class="step" data-x="7800" data-y="0" data-z="0">asdasda</div>
 
         <div class="step" data-x="9100" data-y="0" data-z="0">
