@@ -14,6 +14,15 @@ body {
 	font-size: 50px;
 }
 
+.title2 {
+	font-size: 60px;
+} 
+
+.subtitle {
+	vertical-align: top;
+	font-size: 40px;
+}
+
 .code_style {
 	text-align: left;
 	font-family: "Monospace";
@@ -84,6 +93,8 @@ em {
 			I’d like to take you for a journey that I set off couple months ago.
 			</div>
 		</div>
+<!-- =================================================================================================== -->
+<!-- 									Chapter I - non Compile	    									 -->
 <!-- =================================================================================================== -->
 		<div id="compile1" class="step" data-x="-1300" data-y="0" data-z="0" style="font-size:45px;">
 			<p>auto </p>
@@ -407,34 +418,172 @@ MixerInterface create()
 			asdasda</div>
 		<div class="step" data-x="-5200" data-y="4000" data-z="0">
 			asdasda</div> -->
-		<!-- 		section 2 -->
-		<div class="step" data-x="1300" data-y="0" data-z="0">1st slide sec2</div>
+<!-- =================================================================================================== -->
+<!-- 									Chapter II - Copy elision										 -->
+<!-- =================================================================================================== -->
+		<div id="copyElision1" class="step" data-x="1300" data-y="0" data-z="0">
+		<p class=title2>Copy elision</p>
+		</div>
+<!-- =================================================================================================== -->
+		<div id="copyElision2" class="step" style="text-align:left;" data-x="2600" data-y="0" data-z="0">
+        <p>- mechanism that is permitted under certain conditions
+        <p>- allowed, not required
+        <p>- omit copy/move ctors
+        <p>- even if ctor/dtor have side efects
+        <p>- objects constructed directly in the storage they'd be copied to
+        <p>- copy/move ctors need to be present anyway
+        <p>- debug mode
+        </p>
+		</div>
+		<div class=notes>
+		<p>-
+		</p>
+        Ok so let's structurize our knowledge a litte and go briefly from the beginnig. What is copy elision?
+        It's a mechanism that under certain conditions allows compiler, but not requires to, to omit copy and move constructors, even if the copy/move constructor and the destructor have observable side-effects. The objects are constructed directly into the storage where they would otherwise be copied/moved to.
+        This is an optimization: even when it takes place and the copy/move constructor is not called, it still must be present and accessible.
+        Because some compilers do not perform copy elision in every situation where it is allowed (e.g., in debug mode), programs that rely on the side-effects of copy/move constructors and destructors are not portable.
 
-		<div class="step" data-x="2600" data-y="0" data-z="0">
-			<!-- <img src=images/a.jpeg> -->
+		</div>
+<!-- =================================================================================================== -->
+		<div id="copyElision3" class="step" data-x="3900" data-y="0" data-z="0">
+		<p>C++ standard wording</p>
+		<img src=images/copyElision/copy_elision_standard_cpp14.PNG>
+		<div class=notes>
+		<p>- see wording
+		<p>- a lot of text and there's a reason
+		<p>- compiler allowed but not obligated to elide
+		<p>- 4 situations
+		<p>- on fun return, var is local, purpose of life is to be copied, types the same
+		<p>- for throw statement
+		<p>- init with temporary (also the same type)
+		<p>- for exception handler
+		<p>- quote from cpp14, cpp17 just little reworded
+		</p>
+		Let's see whats wording of standard for this. Actually there're a lot of text and there's a reason for this,
+        but we can just focus on highlited part. It says that compiler is allowed but now obligated to elide copies and
+        there're 4 specific situations where it can be done. On function return, where the variable to be copied 
+        is a local, it's only purpose of life is to be copied to caller function and it's type is the same as type in
+        function prototype.
+        Then there's case for copy elision in throw statement, then for object initialization with a temporary object
+        which also need to be of the same type as object being initialized and in the end there's copy elision for
+        exception handler. We're going to consider these two mainly.
+        This is quote from cpp14, cpp17 is just a little reworded.
+		</div>
+		</div>
+<!-- =================================================================================================== -->		
+		<div id="copyElision4" class="step" data-x="3900" data-y="800" data-z="10">
+		<p class="title2">Copy elision - extracted<br><br></p>
+		<p>- automatic storage
+		<p>- the same type
+		<p>- results "as if" copies were made
+		<div class=notes>
+		<p>-
+		</p>
+		</div>
+		</div>		
+<!-- =================================================================================================== -->			
+		<div id="copyElision5" class="step" data-x="3900" data-y="1600" data-z="20">
+		<p class=title>RVO, NRVO</p>
+		
+			<pre><code><p style="text-align: left">
+			<img style="float:right;" src=images/copyElision/copy_elision_fun1.PNG>
+Mixer fun1() {
+	...
+	return Mixer{};
+	// RVO
+}
+			<img style="float:right;" src=images/copyElision/copy_elision_fun2.PNG>
+Mixer fun2() {
+	Mixer x;
+	...
+	return x;
+	// NRVO
+}
+			</p></code></pre>
+		</div>
+<!-- =================================================================================================== -->			
+		<div id="copyElision6" class="step" data-x="3900" data-y="2400" data-z="300">
+		<p class=title>init objects with temporary</p>
+			<pre><code><p style="text-align: left;">
+			<img style="float:right;" src=images/copyElision/copy_elision_fun3.PNG>
+void fun3(Mixer x) {...}
+
+int main() {
+    // create arg with temp object
+    fun3(Mixer({});
+}
+
+	
+			
+// create var with temp object <img style="float:right;" src=images/copyElision/copy_elision_x1.PNG>
+Mixer x1 = Mixer{};
+			</p></code></pre>
+		</div>
+<!-- =================================================================================================== -->
+		<div id="copyElision7" class="step" data-x="2600" data-y="2400" data-z="0">
+		<p class=title>copy elision combined</p>
+			<pre><code><p style="text-align: left">
+// RVO + create var with temp object
+Mixer x2 = fun1(); <img style="float:right;" src=images/copyElision/copy_elision_x2.PNG>
+
+
+
+// RVO + create arg with temp object
+fun3(fun1());	<img style="float:right;" src=images/copyElision/copy_elision_fun3_fun1.PNG>
+			</p></code></pre>
+		</div>
+<!-- =================================================================================================== -->
+		<div id="copyElision8" class="step" data-x="2600" data-y="1600" data-z="0">
+		<p class=title>Copy elision for exceptions</p>
+			<img style="float:right;" src=images/copyElision/copy_elision_fun4.PNG>		
+			<pre><code><p style="text-align: left">
+void fun4() {
+    // copy-elision in
+    // throw-expression
+    throw Mixer{};
+}
+			</p></code></pre>
+		</div>
+<!-- =================================================================================================== -->
+		<div id="copyElision9" class="step" data-x="2600" data-y="800" data-z="0">
+			<img style="float:right;" src=images/copyElision/copy_elision_fun5.PNG>
+			<pre><code><p style="text-align: left">
+void fun5() {
+    // copy-elision in
+    // throw-expression
+    // no?
+    Mixer x;
+    throw x;
+}
+			</p></code></pre>
+		</div>
+<!-- =================================================================================================== -->
+		<div id="copyElision10" class="step" data-x="1300" data-y="800" data-z="0">
+			<img style="float:right;" src=images/copyElision/copy_elision_fun6.PNG>
+			<pre><code><p style="text-align: left">
+void fun6() {
+    try {
+        fun5();
+    }
+    catch (Mixer x) {
+        // copy-elision in
+        // exception-handler
+        // no?
+        // no move ctor - fine
+    }
+}
+			</p></code></pre>
+		</div>
+<!-- =================================================================================================== -->
+		<div id="copyElision11" class="step" data-x="1300" data-y="1600" data-z="0">
+		<p class=title>Branching</p>
 			asdasda
 		</div>
-
-		<div class="step" data-x="3900" data-y="0" data-z="0">asdasda</div>
-		<div class="step" data-x="3900" data-y="800" data-z="10">
+<!-- =================================================================================================== -->
+		<div id="copyElision12" class="step" data-x="1300" data-y="2400" data-z="0">
 			asdasda</div>
-		<div class="step" data-x="3900" data-y="1600" data-z="20">
-			asdasda</div>
-		<div class="step" data-x="3900" data-y="2400" data-z="300">
-			asdasda</div>
-		<div class="step" data-x="2600" data-y="2400" data-z="0">
-			asdasda</div>
-		<div class="step" data-x="2600" data-y="1600" data-z="0">
-			asdasda</div>
-		<div class="step" data-x="2600" data-y="800" data-z="0">asdasda
-		</div>
-		<div class="step" data-x="1300" data-y="800" data-z="0">asdasda
-		</div>
-		<div class="step" data-x="1300" data-y="1600" data-z="0">
-			asdasda</div>
-		<div class="step" data-x="1300" data-y="2400" data-z="0">
-			asdasda</div>
-		<div class="step" data-x="1300" data-y="3200" data-z="0">
+<!-- =================================================================================================== -->
+		<div id="copyElision13" class="step" data-x="1300" data-y="3200" data-z="0">
 			asdasda</div>
 		<div class="step" data-x="2600" data-y="3200" data-z="0">
 			asdasda</div>

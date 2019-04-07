@@ -1,0 +1,437 @@
+W poprzednim rozdziale dodaj tytuly. I dodaj jeszcze output z kompilacji przykladow dajacych error najnowszym clangiem (jesli nie dalem jeszcze).
+Wrzuc  w sekcji ze gcc, std11, info ze make_unique byl customowa funcja (justo to be precise)
+
+
+
+
+==============================
+Chapter on copy elision
+==============================
+
+- what it is?
+- mechanism that is permitted under certain conditions
+- allowed not required
+- omit copy/move ctors
+- even if ctor/dtor have side efects
+- objects constructed directly in the storage they'd be copied to
+- copy/move ctors need to be present anyway
+- debug mode
+
+
+Ok so let's structurize our knowledge a litte and go briefly from the beginnig. What is copy elision?
+It's a mechanism that under certain conditions allows compiler, but not requires to, to omit copy and move constructors, even if the copy/move constructor and the destructor have observable side-effects. The objects are constructed directly into the storage where they would otherwise be copied/moved to.
+This is an optimization: even when it takes place and the copy/move constructor is not called, it still must be present and accessible.
+Because some compilers do not perform copy elision in every situation where it is allowed (e.g., in debug mode), programs that rely on the side-effects of copy/move constructors and destructors are not portable.
+
+
+
+- standard wording? - any change between c++11 and 14?  
+
+
+Let's see whats wording of standard for this. Actually there're a lot of text and there's a reason for this,
+but we can just focus on highlited part. It says that compiler is allowed but now obligated to elide copies and
+there're 4 specific situations where it can be done. On function return, where the variable to be copied 
+is a local, it's only purpose of life is to be copied to caller function and it's type is the same as type in
+function prototype.
+Then there's case for copy elision in throw statement, then for object initialization with a temporary object
+which also need to be of the same type as object being initialized and in the end there's copy elision for
+exception handler. We're going to consider these two mainly.
+This is quote from cpp14, cpp17 is just a little reworded.
+
+
+- criteria for copy elision - extracted
+the same type
+automatic storage
+results "as if" copies were made
+
+Let's sum up:
+
+- examples:
+
+
+- return RVO vs NRVO
+Mixer fun1() {
+    ...
+    return Mixer{};
+    // RVO
+}
+
+Mixer fun2() {
+    Mixer x;
+    ...
+    return x;
+    // NRVO
+}
+
+- for init objects with temporary
+void fun3(Mixer x) 
+{ ... }
+
+int main() {
+    // create arg with temp object
+    fun3(Mixer({});
+}
+
+// create var with temp object
+Mixer x1 = Mixer{};
+
+// convolution of copy elision
+// RVO + create var with temp object
+Mixer x2 = fun1();
+
+
+- for exceptions
+void fun4() {
+    // copy-elision in a throw-expression
+    throw Mixer{};
+}
+
+void fun5() {
+    // copy-elision in a throw-expression
+    // why?
+    Mixer x;
+    throw x;
+}
+
+void fun6() {
+    // ...
+    try {
+        throw Mixer{};
+    }
+    catch (Mixer x) {
+        // copy-elision in exception-handler
+        // actually copy-ctor here on latest gcc and clang
+        // ...
+    }
+}
+
+// no move here, this is fine since there's a note saying that can not be move bc it's a lvalue.
+    
+- branching
+Czyt to (generalnie tu i tu nie NRVO ale madry compilator 1szy case zoptymalizuje) 
+Mixer create1(int q) {
+    Mixer x1, x2;
+    if(q > 4)
+        return x1;
+    else
+        return x2;
+}
+
+Mixer create2(int q) {
+    if(q > 4) {
+        Mixer x1, x2;
+        return x1;
+    }
+    else {
+        Mixer x1, x2;
+        return x2;
+    }
+}
+
+// tu nie zoptymalizuje nie ma bata no bo jak?
+bool pred(Mixer& x1, Mixer& x2)
+{
+    return x1 > x2;
+}
+
+Mixer create3(int q) {
+    Mixer x1, x2;
+    if(pred(x1,x2))
+        return x1;
+    else
+        return x2;
+}
+
+
+- cpp17 obligation
+ctors in pre cpp17 must be present
+ The main problem is that, without guaranteed elision, you cannot get rid of the move and copy constructor, because elision might not take place. This prevents non-movable types from having functions that return by value, such as factories.
+ 
+The complete name of the proposal is "Guaranteed copy elision through simplified value categories". To achieve guaranteed copy elision, the proposal suggest distinguishing between prvalue (pure rvalue) expressions and the temporary objects initialized by them. More specifically, a glvalue (generalized lvalue) is defined as the location of an object and a prvalue is defined as the initializer of the object.
+If a prvalue is used as the initializer of an object with the same type, it initializes it directly. As a consequence, initializing the return value of a function with a temporary causes the value to be initialized directly, without a copy or a move. This means that the copy or move constructor of the object no longer needs to be accessible. 
+ 
+ 
+ Below does not compile:
+struct Factory {
+  Factory(){};
+  Factory(const Factory &) = delete;
+  Factory(Factory &&) = delete;
+};
+
+Factory x0{Factory{}};
+    
+error: use of deleted function 'Factory::Factory(Factory&&)'    
+ 
+Actually, according to  blog.tartanllama.xyz, it's better to understand it not as a guaranteed copy elision but deferred temporary materialization.
+
+- how copy elision works - example by John Kalb on 2018 cppcon
+
+Mixer fun() {
+    int z;
+    Mixer x;
+    ...
+    return x;
+}
+
+Mixer y{fun()};
+
+How many params fun takes?
+
+
+
+Never depend on side effects from copy constructors, as small changes in the code inside a function might allow or inhibit NRVO.
+
+
+==============================
+Chapter on move semantics on RVO
+==============================
+
+- RVO enhanced with copy/move operation
+Ok, we've just went through copy elision criteria and examples but why? We still keep in mind our non compiling 
+examples from previous secion right? We remember that compiler error was that 
+it wanted to call converting move ctor but had only lvalue object so printed en error right? Be patient, we're getting there. 
+
+So on function return, when copy elision is not eligible, new object needs to be created. It can be created using
+move ctor or copy ctor. What are criteria that compiler uses to take this decision?
+
+Mixer fun1() {
+    ...
+    return Mixer{};
+}
+In this example it's pretty straightforward - pure rvalue returned so move ctor is resolved
+
+Mixer fun2() {
+    Mixer x;
+    ...
+    return x;
+}
+How about here? lvalue so should be copy ctor but obviously it would be performance issue. So it would be nice 
+to have a mechanism that allowed to do move operation here. Actually there's one.
+
+- Criteria in cpp11
+A lot of test but don't worry, highlited.
+Criteria for creation of new object with move op tied closely with criteria for copy elision, the only 
+difference is it can be used for fun param.
+In example fun2 works fine here. But...
+
+So when can we use it when criteria for copy elision are met but copy elision is not performed?
+For sure when compiling with - fno-elide-constructors flag. But remember also that copy elision in cpp11 and cpp14 is not required, so even when sth is eligible to copy elision, compiler engineers might have decided not to do so, as in example with exception in previous section.
+
+- DR1579
+http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#1579
+
+Similar situation to ours but with optional, but the same problem noticed - converting ctor can't be used
+withoud explicit std::move on return. Reported in 2012, resolved in 2014.
+
+
+- Criteria in cpp14
+It was so important it was added retrospectively to cpp11. Don't have access to official iso doc but on latest 
+draft available, in cpp11 is still present old wording. 
+
+- Non-compiling example
+Ok, so we can go back to our non compiling eamples.
+Wrzuc tu obydwa przyklady.
+Reasoning of the old compiler was like this: can i perform copy elision? No, since types returned and to be 
+returned are different. Let's create new object. Can I treat object as rvalue and use move ctor for this? No, since criteria here is coupled with criteria for copy elision. So need to use copy ctor, which is deleted. Dammit, error...
+Exactly the same for example with const.
+
+Newer compiler follows new rules that are not so tightly coupled with copy elision criteria - automatic storage 
+duration is 
+
+
+- Why class hierarchy compiles? Object slicing and return sequencing
+Ok so one can ask why this example didn't fail? We have similar situation, with different types returned and
+to be returned.
+But when we look at return statement description, it says that it:
+Evaluates the expression,
+terminates the current function
+and returns the result of the expression to the caller,
+after implicit conversion to the function return type. 
+
+Implicit converion is important for us. So old compiler reasoned this way:
+Evaluate expression. Perform copy elision? No cause different types. Can I treat object as rvalue and use move ctor for this? No, since I have the same criteria as for copy elision. 
+So need to treeat it as lvalue, so implicit cast to return type and ctor overload resolution and copy ctor resolved.
+In unique_ptrs both decisions were also negative, but no implicit cast was available.
+
+Newr compiler, with bug fixed reasons the same, but for decision whether to use move ctor doesn't use criteria for copy elision but tries to overload ctor with rvalue reference. Overload fails bc base class doesn't have converting ctor with param of type of Mixer. The rest of mechanism is the same.
+
+
+
+- class hierarchy copy vs move
+We have last question to answer - why in this example pre 8.0 gcc and all clang is performing a copy and gcc+ is doing move? Actually it's the copy that is conformant with standard. But gcc engineers try to be clever and are little bit ahead here, there's a proposal that suggests resolving move ctor in such case. 
+
+
+==============================
+Chapter on current return move optimization state
+==============================
+So generally we went through non compiling examples on old compilers, examples that currently on one compiler
+are copied and on the other are moved, we can cleary see that decision how create objects on return (and in exceptions related stuff) is not a simple choice and is still evolving. So what state has it now?
+We've already seen wording for cpp11 and cpp14 standard, cpp17 modifies it a little with deferred temporary materialization. What's next? Or... actually currently. There're already 3 proposals being processed, regarding enhancing of criteria for either copy elision or creating objects with move operation.
+
+- P0527R1 - Implicitly move from rvalue references in return statements
+David Stone
+http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0527r1.html
+
+//Doesn't compile (the same error as we had):
+std::unique_ptr<T> f(std::unique_ptr<T> && ptr) {
+    return ptr;
+}
+
+// move ctor
+std::string f(std::string x) { return x; }
+
+// copy ctor - so surprising
+std::string g(std::string && x) { return x; }
+
+Proposal includes similar suggestions regarding rvalue reference function parameters used in throw expression and exception declaration.
+
+Wording change to include rvalue reference:
+rename "an object with automatic storage duration" -> "a movable entity"
+
+This proposal was approved by EWG in the Kona 2017 meeting.
+
+
+- P1155R2 - More implicit moves
+    Arthur O'Dwyer 
+    David Stone
+http://quuxplusone.github.io/draft/d1155-more-implicit-moves.html
+
+On open-std there's still version R1 from November, here is R2 from January 2019.
+Presented on cppcon 2018, great talk, just half an hour. 
+
+Paper starts with:
+"Programmers expect return x; to trigger copy elision; or, at worst, to implicitly move from x instead of copying. Occasionally, C++ violates their expectations and performs an expensive copy anyway. [...]"
+
+Current wording and problematic words, paste image.
+
+Paper goes presenting simple examples that present as expected copy elision or move construction, and switches to examples that surprisingly present copy operation.
+We can find there our RVO, NRVO examples, then our example with unique_ptr to class hierarchy and then new ones:
+
+- Throwing is pessimized
+// function parameter
+
+void seven(Widget w) {
+    throw w;  // no copy elision, and no implicit move (the object is copied)
+}
+
+Note:
+current Standard wording              - copy 
+GCC                                   - copy
+Clang 4.0.1+, MSVC 2015+, ICC 16.0.3+ - implicit move
+
+- Non-constructor conversion is pessimized
+// ctor
+struct To {
+    operator Widget() const &;
+    operator Widget() &&;
+};
+
+Widget nine() {
+    To t;
+    return t;  // no copy elision, and no implicit move (the object is copied)
+}
+
+// Conversion operator
+
+- By-value sinks are pessimized
+// rvalue ref
+
+struct Fowl {
+    Fowl(Widget);
+};
+
+Fowl eleven() {
+    Widget w;
+    return w;  // no copy elision, and no implicit move (the Widget object is copied)
+}
+
+Note:
+current Standard wording              - copy 
+Clang, ICC, MSVC                      - copy
+GCC 5.1+                              - implicit move
+
+- Slicing is pessimized
+// object's type
+
+And here's our mistery with class hierarchy and copy vs move on clang and gcc is solved.
+According to standard copy, gcc is ahead.
+
+Base thirteen() {
+    Derived result;
+    return result;  // no copy elision, and no implicit move (the object is copied)
+}
+
+Note:
+current Standard wording              - copy 
+Clang, MSVC                           - copy
+GCC 8.1+, ICC 18.0.0+                 - implicit move
+
+- "We propose to remove all four of these unnecessary limitations."
+
+- already implemented in clang
+available in clang since 02.2018
+ -Wreturn-std-move (which is enabled as part of -Wmove, -Wmost, and -Wall)
+overload resolution according to both rule - standard and the ones in this proposal
+if they differ, then diagnostic warning is emitted suggesting adding explicit std::move since copy otherwise
+but clang still doesn't diagnose "By value sinks"
+
+This feature has effectively already been implemented in Clang since February 2018; see [D43322]. Under the diagnostic option -Wreturn-std-move (which is enabled as part of -Wmove, -Wmost, and -Wall), the compiler performs overload resolution according to both rules — the standard rule and also a rule similar to the one proposed in this proposal. If the two resolutions produce different results, then Clang emits a warning diagnostic explaining that the return value will not be implicitly moved and suggesting that the programmer add an explicit std::move.
+However, Clang does not diagnose the examples from §1.3 By-value sinks.
+
+- Plenty of true positives
+proven with clang flag enabled on Chromium and LibreOffice projects
+
+- Lack of false positives
+Just one complaint from Mozzilla saying that performance benefit was too little when copared to ugliness of explicit std::move.
+Actually it's not a false positive.
+
+- P0889R1 - Ultimate copy elision
+Antony Polukhin
+https://apolukhin.github.io/papers/ultimate_copy_elision_r1.html
+Also on open-std but version R0
+
+code with numerous functions since we've been taught for decades to delegate to funs and classes
+compilers inline more aggressievly and inline a lot
+Current rules for copy elision mostly assume that a function from source code remains a function in a binary - inlining, aliasing reasoning, and link time optimization open new world on possible optimizations since fun params and its body is seen together
+Our current rules are suboptimal for modern compilers: they prevent optimizations.
+std::move/rvalues is not a solution since std::array, std::basic_string, std::function, std::variant, std::optional and others may store a lot of data on stack
+
+9 examples of optimization with copy elision
+
+==============================
+Chapter on guaranteed copy elision in cpp17????
+==============================
+The complete name of the proposal is "Guaranteed copy elision through simplified value categories".
+
+The authors of the paper acknowledge this but chose to leave it out of scope:
+While we believe that reliable NRVO is an important feature to allow reasoning about performance, the cases where NRVO is possible are subtle and a simple guarantee is difficult to give.
+
+
+==============================
+Summary
+==============================
+Let's summarize.
+I briefly looked for proposals on move semantics and the oldest I found was from 2002 (image). Even though the idea of move semantics started almost 2 decades ago and is present in standard for almost a decade, there're optimization areas to work on. That's amazing. 
+
+
+We've started with non compiling example, then went through copy elision mechanics and rules, then through creating new object with move operation on function return and criteria for this in c++11,14,17. Finally we've seen current proposals that aim to yet ehnace no of contexts where copy elision or move object creation can be used.
+What I'd like you to remember from this thrilling journey we've just had, is that:
+you can't always rely on what your compiler tells you
+upgrade compilers
+upgrade c++ standard
+bugs+performance
+
+
+
+Powiedz ze O'dwyer ma przypadek ktory nie jest opisany w zadnym proposalu??
+
+
+
+
+Inne:
+show few examples from my fedora???????
+copy elision w lambdach?
+std::forward wola return std::move - tu ok bo to tylko castowanie
+value categories - where?
+- na poczatku tylko poprintfuj, potem lec godboltem i asemblerem
+Podsumowanie - nie dosc ze nie mozemy polegac na kompilatorze, na standardzie, to jeszcze kompilatory roznia sie miedzy soba.

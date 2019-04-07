@@ -3246,7 +3246,7 @@
             // In the case of TAB, we force step navigation always, overriding the browser
             // navigation between input elements, buttons and links.
             if ( event.keyCode === 9 ) {
-                return true;
+                return false;
             }
 
             // With the sole exception of TAB, we also ignore keys pressed if shift is down.
