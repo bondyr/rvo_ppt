@@ -163,17 +163,29 @@ unique_ptr&ltCombiner> create()
             <p>- code review, minor mistake
             <p>- factory fun casting to rval
             <p>- lot of tutorials
-            <p>- suffer on performance</p>
+            <p>- suffer on performance
+            <p>- In this case RVO inhibited
+            <p>- different return types
+            <p>- intro compulsory move operation that would be applied anyway
+            <p>- logged a comment, went back to other tasks
+            <p>- collegue fixed here and few other places
+            <p>- problem</p>
 
             When doing review of code, I noticed a piece of code that contained a minor mistake.
             Factory function, that was creating and initializing a unique pointer, on return was casting it to
             rvalue.
             There’re a lot of tutorials on modern c++ saying that you shouldn’t do that, bc you prevent compiler
             optimization and your code will suffer on performance.
+            In this case - RVO would be inhibited bc function return type and actually returned type
+            are different - unique_ptr and rvalue reference to unique_ptr.
+            So I logged a comment on that you shouldn’t use move on return from function. I also put there
+            few links explaining why, a quote with explanation from Meyers book, and went back to other tasks.
+            My collegue noticed comment, fixed code in this place and few other places that were also returning
+            move and… told me that there’s a problem.
             </div>
         </div>
 <!-- =================================================================================================== -->
-        <div id="compile3" class="step" data-x="-3900" data-y="0" data-z="0">
+<!--         <div id="compile3" class="step" data-x="-3900" data-y="0" data-z="0">
             <img src=images/nonCompile/Meyers_return_move.PNG>
             <div class=notes>
             <p>- Meyers, puts in frame, "Effective Modern C++"
@@ -186,11 +198,12 @@ unique_ptr&ltCombiner> create()
             a move operation instead, that would be applied here anyway if copy elision was not allowed.
             </div>
         </div>
-<!-- =================================================================================================== -->
+===================================================================================================
         <div id="compile4" class="step" data-x="-2600" data-y="0" data-z="0">
             <div class=notes>
             <p>- In this case RVO inhibited
             <p>- different return types
+            <p>- intro compulsory move operation that would be applied anyway
             <p>- logged a comment, went back to other tasks
             <p>- collegue fixed here and few other places
             <p>- problem</p>
@@ -202,7 +215,7 @@ unique_ptr&ltCombiner> create()
             My collegue noticed comment, fixed code in this place and few other places that were also returning
             move and… told me that there’s a problem.
             </div>
-        </div>
+        </div> -->
 <!-- =================================================================================================== -->
         <div id="compile5" class="step" data-x="-3900" data-y="800" data-z="10" style="text-align: left;">
             <pre><code><p>
@@ -278,11 +291,11 @@ unique_ptr&ltMixerInterface>(mixer);
         </div>
         </div>
 <!-- =================================================================================================== -->
-        <div id="compile7b" class="step" data-x="-3900" data-y="1600" data-z="0">
+<!--         <div id="compile7b" class="step" data-x="-3900" data-y="1600" data-z="0">
         <div class=notes>
         <p>- can't bind lval to rval ref</p>
         </div>
-        </div>
+        </div> -->
 <!-- =================================================================================================== -->
         <div id="compile8" class="step" data-x="-2600" data-y="2400" data-z="0">
             <p class=title>So debugging starts...</p>
@@ -578,7 +591,7 @@ fun3(fun1());   <img style="float:right;" src=images/copyElision/copy_elision_fu
         </div>
         </div>
 <!-- =================================================================================================== -->
-        <div id="copyElision8" class="step" data-x="2600" data-y="1600" data-z="0">
+<!--         <div id="copyElision8" class="step" data-x="2600" data-y="1600" data-z="0">
         <p class=title>Copy elision for exceptions</p>
             <img style="float:right;" src=images/copyElision/copy_elision_fun4.PNG>     
             <pre><code><p style="text-align: left">
@@ -589,7 +602,7 @@ void fun4() {
 }
             </p></code></pre>
         </div>
-<!-- =================================================================================================== -->
+===================================================================================================
         <div id="copyElision9" class="step" data-x="2600" data-y="800" data-z="0">
             <img style="float:right;" src=images/copyElision/copy_elision_fun5.PNG>
             <pre><code><p style="text-align: left">
@@ -602,7 +615,7 @@ void fun5() {
 }
             </p></code></pre>
         </div>
-<!-- =================================================================================================== -->
+===================================================================================================
         <div id="copyElision10" class="step" data-x="1300" data-y="800" data-z="0">
             <img style="float:right;" src=images/copyElision/copy_elision_fun6.PNG>
             <pre><code><p style="text-align: left">
@@ -621,7 +634,7 @@ void fun6() {
         <div class=notes>
         <p>- C++14 standard has note saying that exception object is always lvalue so no move possible
         </div>
-        </div>
+        </div> -->
 <!-- =================================================================================================== -->
         <div id="copyElision11" class="step" data-x="1300" data-y="1600" data-z="0">
         <p class=title>Branching</p>
@@ -776,7 +789,7 @@ Mixer y{fun()};
         </code></pre>
         </div>  
 <!-- =================================================================================================== -->        
-        <div id="copyElision21" class="step" data-x="5200" data-y="1600" data-z="0">
+<!--         <div id="copyElision21" class="step" data-x="5200" data-y="1600" data-z="0">
         <p class=title>RVO in C++17</p>
         <pre><code><p style="text-align: left">
 struct Factory {
@@ -804,7 +817,7 @@ Factory getFactory() { return Factory{}; }
         such as factories.
         </div>    
         </div>
-<!-- =================================================================================================== -->            
+===================================================================================================            
         <div id="copyElision22" class="step" data-x="5200" data-y="2400" data-z="0">
         <p class=title>"Guaranteed copy elision through simplified value categories"</p>
         <br>
@@ -832,7 +845,7 @@ Factory getFactory() { return Factory{}; }
         without a copy or a move. This means that the copy or move constructor of the object no longer needs to be accessible.
         </div>
         </div>
-<!-- =================================================================================================== -->
+===================================================================================================
         <div id="copyElision23" class="step" data-x="5200" data-y="3200" data-z="0">
         <p class=title>Actually...</p>
         <pre class=left><code>
@@ -844,7 +857,7 @@ auto factory = getFactory(); // OK in C++17
         <div class=notes>
         <p>- by definition there's no copy to elide
         </div>
-        </div>
+        </div> -->
 <!-- =================================================================================================== -->
 <!--                                    Chapter II - Move                                         -->
 <!-- =================================================================================================== -->
@@ -1009,7 +1022,7 @@ unique_ptr&lt<strong>const MixerInterface</strong>> create()
         </div>
         </div>
 <!-- =================================================================================================== -->
-        <div id="Move9" class="step" data-x="9100" data-y="800" data-z="0" style="font-size:30">
+<!--         <div id="Move9" class="step" data-x="9100" data-y="800" data-z="0" style="font-size:30">
         <p style="font-size:40">So why object slicing compiled on old compiler?</p>
         <pre class=left><code>
 <strong>MixerInterface</strong> create()
@@ -1024,7 +1037,7 @@ unique_ptr&lt<strong>const MixerInterface</strong>> create()
         </p>
         </div>
         </div>
-<!-- =================================================================================================== -->
+===================================================================================================
         <div id="Move10" class="step" data-x="7800" data-y="800" data-z="0">
         <p class=title>Return statement</p>
         <p class=left>- evaluates the expression
@@ -1038,7 +1051,7 @@ unique_ptr&lt<strong>const MixerInterface</strong>> create()
         </p>
         </div>
         </div>
-<!-- =================================================================================================== -->
+===================================================================================================
         <div id="Move11" class="step" data-x="7800" data-y="1600" data-z="0" style="font-size:30">
         <pre class=left><code>
 <strong>MixerInterface</strong> create()
@@ -1062,7 +1075,7 @@ unique_ptr&lt<strong>const MixerInterface</strong>> create()
         </p>
         </div>
         </div>
-<!-- =================================================================================================== -->
+===================================================================================================
         <div id="Move12" class="step" data-x="7800" data-y="2400" data-z="0" style="font-size:30">
         <pre class=left><code>
 <strong>MixerInterface</strong> create()
@@ -1092,7 +1105,7 @@ unique_ptr&lt<strong>const MixerInterface</strong>> create()
         converting ctor with param of type of Mixer. The rest of mechanism is the same.
         </div>
         </div>
-<!-- =================================================================================================== -->
+===================================================================================================
         <div id="Move13" class="step" data-x="7800" data-y="3200" data-z="0">
         <p class=title>Back to object slicing copy/move problem</p>
         <p>Why gcc 8.1+ uses move?</p>
@@ -1117,7 +1130,7 @@ unique_ptr&lt<strong>const MixerInterface</strong>> create()
         Actually it's the copy that is conformant with standard. But gcc engineers try to be clever and are little bit ahead here,
         there's a proposal that suggests resolving move ctor in such case. 
         </div>
-        </div>
+        </div> -->
 <!-- =================================================================================================== -->
 <!--                                    Chapter IV - Future of RVO move semantics                        -->
 <!-- =================================================================================================== -->
