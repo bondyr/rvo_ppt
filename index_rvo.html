@@ -37,10 +37,6 @@ body {
 .link {
     font-size:25;
 }
-/* .code_style { */
-/*     text-align: left; */
-/*     font-family: "Monospace"; */
-/* } */
 
 .step {
     text-align: center;
@@ -49,6 +45,28 @@ body {
 
 .notes {
     display: none;
+}
+
+/* hide non-active slides */
+.impress-enabled .step {
+opacity: 0.01;
+}
+
+/* only show active slide */
+.impress-enabled .step.active { opacity: 1;}
+
+/* for slides using other slides */
+.impress-on-overview .step    { opacity: 1;}
+.impress-on-compile4 #compile2    { opacity: 1;}
+.impress-on-compile7b #compile6    { opacity: 1;}
+
+/* for darkening slides during transition */
+.impress-enabled .step {
+   -webkit-transition: opacity 1s;
+   -moz-transition:    opacity 1s;
+   -ms-transition:     opacity 1s;
+   -o-transition:      opacity 1s;
+   transition:         opacity 1s;
 }
 
 .hint_text {
@@ -216,9 +234,11 @@ error: cannot bind 'unique_ptr&ltMixer>' lvalue
                 to 'unique_ptr&ltMixer>&&'
             </p></code></pre>
         <div class=notes>
-        <p>- compiler error
-        <p>- no RVO but move ctor (fine)
-        <p>- why lvalue error?</p>
+        <p>- compiler error - can't bind lvalue to rvalue ref
+        <p>- obviously no RVO but move ctor (fine cause different type)
+        <p>- why lvalue error?
+        <p>- not a rocket science code
+        </p>
 
         How surprised were we, when it turned out that this function produced compiler error.
         And it was kind of not obvious in the beginning - obviously no RVO happened cause compiler tried
@@ -389,8 +409,8 @@ MixerInterface create()
             </p></code></pre>
             <img src=images/nonCompile/create_gcc.png>
         <div class=notes>
-        <p>- newer compiler
         <p>- object slicing again
+        <p>- newer compiler
         <p>- still compiles but now move ctor instead of copy ctor
         </p>
         </div>
@@ -408,6 +428,7 @@ MixerInterface create()
             <img src=images/nonCompile/create_clang.png>
         <div class=notes>
         <p>- on clang still copy ctor
+        <p>- weird
         </p>
         </div>
         </div>
@@ -415,9 +436,9 @@ MixerInterface create()
         <p style="font-size:60;">Summary:</p>
         <p>unique_ptr to class hierarchy doesn't compile on gcc 4.9.4-
         <p>it compiles on gcc 5.1+
-        <p>class hierarchy performs copy on gcc 8.0-
-        <p>class hierarchy performs move on gcc 8.1+
-        <p>class hierarchy performs copy on clang 8.0.0
+        <p>object slicing performs copy on gcc 8.0-
+        <p>object slicing performs move on gcc 8.1+
+        <p>object slicing performs copy on clang 8.0.0
         <p><br><strong>Pretty messed up</strong></p>
         </div>
 <!--        <div class="step" data-x="-3900" data-y="3200" data-z="0">
@@ -524,6 +545,9 @@ Mixer fun2() {
             </p></code></pre>
         <div class=notes>
         <p>- let's see few examples
+        <p>- simple RVO and NRVO case
+        <p>- unnamed in 1st and named in 2nd object returned
+        <p>- assembly code on the right, only default ctor called
         </div>
         </div>
 <!-- =================================================================================================== -->            
@@ -543,6 +567,11 @@ int main() {
 // create var with temp object <img style="float:right;" src=images/copyElision/copy_elision_x1.PNG>
 Mixer x1 = Mixer{};
             </p></code></pre>
+        <div class=notes>
+        <p>- initializaion of fun arg with pure rvalue
+        <p>- initialization of variable with pure rvalue
+        </p>
+        </div>
         </div>
 <!-- =================================================================================================== -->
         <div id="copyElision7" class="step" data-x="2600" data-y="2400" data-z="0">
@@ -556,6 +585,12 @@ Mixer x2 = fun1(); <img style="float:right;" src=images/copyElision/copy_elision
 // RVO + create arg with temp object
 fun3(fun1());   <img style="float:right;" src=images/copyElision/copy_elision_fun3_fun1.PNG>
             </p></code></pre>
+        <div class=notes>
+        <p>- copy elision can be combined to avoid multiple copies
+        <p>- RVO with initialization with temporary object
+        <p>- of variable
+        <p>- and of fun arg 
+        </div>
         </div>
 <!-- =================================================================================================== -->
         <div id="copyElision8" class="step" data-x="2600" data-y="1600" data-z="0">
@@ -675,6 +710,8 @@ Mixer y{fun()};
         <p>How many params fun() takes?
         <div class=notes>
         <p>- mechanics behind c.e.
+        <p>- we have function returning object by value and object returned with it
+        <p>- how many params fun() takes?
         </p>
 
         </div>    
@@ -695,10 +732,16 @@ Mixer y{fun()};
         <div id="copyElision16" class="step" data-x="3900" data-y="4000" data-z="0">
         <img src=images/copyElision/fun_stack1.PNG>
         <p><br>1 param
+        <div class=notes>
+        <p>- actually 1 parameter
+        </div>
         </div>
 <!-- =================================================================================================== -->            
         <div id="copyElision17" class="step" data-x="2600" data-y="4000" data-z="0">
         <img src=images/copyElision/fun_stack2.PNG>
+        <div class=notes>
+        <p>- on assmebly level, address of return value to store returned object to
+        </div>
         </div>
 <!-- =================================================================================================== -->            
         <div id="copyElision18" class="step" data-x="1300" data-y="4000" data-z="0">
@@ -712,6 +755,9 @@ Mixer fun() {
 
 Mixer y{fun()};
         </code></pre>
+        <div class=notes>
+        <p>- in this example fun creates 2 local objects and has info on address of return value
+        </div>
         </div>
 <!-- =================================================================================================== -->            
         <div id="copyElision19" class="step" data-x="5200" data-y="0" data-z="0">
@@ -752,7 +798,9 @@ struct Factory {
 };
 
 Factory getFactory() { return Factory{}; }
-    
+   
+   
+// C++11/14
 <strong>error</strong>: use of deleted function
        'Factory::Factory(Factory&&)'
         </p>
@@ -801,6 +849,9 @@ Factory getFactory() { return Factory{}; }
 <!-- =================================================================================================== -->
         <div id="copyElision23" class="step" data-x="5200" data-y="3200" data-z="0">
         <p class=title>Actually...</p>
+        <pre class=left><code>
+auto factory = getFactory(); // OK in C++17
+        </code></pre>
         <p class=left>- it's not copy elision anymore
         <p class=left>- no copy to elide
         <p class=left><strong>- deferred temporary materialization</strong></p>
@@ -969,7 +1020,7 @@ unique_ptr&lt<strong>const MixerInterface</strong>> create()
         </div>
 <!-- =================================================================================================== -->
         <div id="Move9" class="step" data-x="9100" data-y="800" data-z="0" style="font-size:30">
-        <p style="font-size:40">So why class hierarchy compiled on old compiler?</p>
+        <p style="font-size:40">So why object slicing compiled on old compiler?</p>
         <pre class=left><code>
 <strong>MixerInterface</strong> create()
 {
@@ -1053,7 +1104,7 @@ unique_ptr&lt<strong>const MixerInterface</strong>> create()
         </div>
 <!-- =================================================================================================== -->
         <div id="Move13" class="step" data-x="7800" data-y="3200" data-z="0">
-        <p class=title>Back to class hierarchy copy/move problem</p>
+        <p class=title>Back to object slicing copy/move problem</p>
         <p>Why gcc 8.1+ uses move?</p>
         <pre class=left><code>
 MixerInterface create()
@@ -1328,10 +1379,10 @@ Base thirteen() {
           </tr>  
         </table>         
         <div class=notes>
-        <p>- here's our mistery with class hierarchy
+        <p>- here's our mistery with object slicing
         <p>- according to standard copy, gcc is ahead.
         </p>
-        And here's our mistery with class hierarchy and copy vs move on clang and gcc is solved.
+        And here's our mistery with object slicing and copy vs move on clang and gcc is solved.
         According to standard copy, gcc is ahead.
         </div>
         </div>
