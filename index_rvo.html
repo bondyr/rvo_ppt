@@ -45,6 +45,9 @@ a {
 .step {
     text-align: center;
     width: 1024px;
+/*     margin: 0px 20px; */
+     margin-left:10px;
+     margin-right:10px;
 }
 
 .notes {
@@ -222,7 +225,7 @@ unique_ptr&lt<strong>MixerInterface</strong>> create()
             </div>
         </div>
 <!-- =================================================================================================== -->
-        <div id="compile6" class="step" data-x="-3900" data-y="1600" data-z="20">
+        <div id="compile6" class="step" data-x="-3900" data-y="1600" data-z="0">
             <pre><code><p style="text-align: left; font-size:30;">
 unique_ptr&lt<strong>MixerInterface</strong>> create()
 {
@@ -283,13 +286,11 @@ unique_ptr&ltMixerInterface>(mixer);
 <!-- =================================================================================================== -->
         <div id="compile8" class="step" data-x="-2600" data-y="2400" data-z="0">
             <p class=title>So debugging starts...</p>
-            <pre><code><p style="text-align:left; font-size:30;">
-unique_ptr&lt<strong>MixerInterface</strong>> create()
+            <pre><code><p style="text-align:left; font-size:30;">unique_ptr&lt<strong>MixerInterface</strong>> create()
 {
     return make_unique&lt<strong>Mixer</strong>>();
     // OK - move ctor
 }
-
 
 
 unique_ptr&lt<strong>MixerInterface</strong>> create()
@@ -519,7 +520,7 @@ MixerInterface create()
         </div>
         </div>
 <!-- =================================================================================================== -->        
-        <div id="copyElision4" class="step" data-x="3900" data-y="800" data-z="10">
+        <div id="copyElision4" class="step" data-x="3900" data-y="800" data-z="0">
         <p class="title2">Copy elision - extracted<br><br></p>
         <p>- automatic storage
         <p>- the same type
@@ -530,20 +531,18 @@ MixerInterface create()
         </div>
         </div>      
 <!-- =================================================================================================== -->            
-        <div id="copyElision5" class="step" data-x="3900" data-y="1600" data-z="20">
+        <div id="copyElision5" class="step" data-x="3900" data-y="1600" data-z="0">
         <p class=title>RVO, NRVO</p>
         
             <pre><code><p style="text-align: left">
             <img style="float:right;" src=images/copyElision/copy_elision_fun1.PNG>
 Mixer fun1() {
-    ...
     return Mixer{};
     // RVO
 }
             <img style="float:right;" src=images/copyElision/copy_elision_fun2.PNG>
 Mixer fun2() {
     Mixer x;
-    ...
     return x;
     // NRVO
 }
@@ -556,7 +555,7 @@ Mixer fun2() {
         </div>
         </div>
 <!-- =================================================================================================== -->            
-        <div id="copyElision6" class="step" data-x="3900" data-y="2400" data-z="300">
+        <div id="copyElision6" class="step" data-x="3900" data-y="2400" data-z="0">
         <p class=title>init objects with temporary</p>
             <pre><code><p style="text-align: left;">
             <img style="float:right;" src=images/copyElision/copy_elision_fun3.PNG>
@@ -755,13 +754,13 @@ Mixer y{fun()};
         <div id="copyElision18" class="step" data-x="1300" data-y="4000" data-z="0">
         <img style="float:right" src=images/copyElision/fun_stack3.PNG>
         <pre class=left><code>
-Mixer fun() {
-    int z;
-    Mixer x;
-    return x;
-}
-
-Mixer y{fun()};
+        Mixer fun() {
+            int z;
+            Mixer x;
+            return x;
+        }
+        
+        Mixer y{fun()};
         </code></pre>
         <div class=notes>
         <p>- in this example fun creates 2 local objects and has info on address of return value
@@ -772,13 +771,13 @@ Mixer y{fun()};
         <p class==title>No copy elision</p>
         <img style="float:right" src=images/copyElision/fun_stack4.PNG>
         <pre class=left><code>
-Mixer fun() {
-    int z;
-    Mixer x;
-    return x;
-}
-
-Mixer y{fun()};
+        Mixer fun() {
+            int z;
+            Mixer x;
+            return x;
+        }
+        
+        Mixer y{fun()};
         </code></pre>
         </div>
 <!-- =================================================================================================== -->        
@@ -786,13 +785,13 @@ Mixer y{fun()};
         <p class==title>Copy elision</p>
         <img style="float:right" src=images/copyElision/fun_stack5.PNG>
         <pre class=left><code>
-Mixer fun() {
-    int z;
-    Mixer x;
-    return x;
-}
-
-Mixer y{fun()};
+        Mixer fun() {
+            int z;
+            Mixer x;
+            return x;
+        }
+        
+        Mixer y{fun()};
         </code></pre>
         </div>  
 <!-- =================================================================================================== -->        
@@ -938,7 +937,7 @@ Mixer fun2() {
         </div>
         </div>
 <!-- =================================================================================================== -->
-        <div id="Move4" class="step" data-x="10400" data-y="800" data-z="10">
+        <div id="Move4" class="step" data-x="10400" data-y="800" data-z="0">
         <p class=title>So move instead of copy elision but criteria tied closely...</p>
         <br><br>
         <p class=left>- when -fno-elide-constructors</p>
@@ -954,7 +953,7 @@ Mixer fun2() {
         </div>
         </div>
 <!-- =================================================================================================== -->
-        <div id="Move5" class="step" data-x="10400" data-y="1600" data-z="20">
+        <div id="Move5" class="step" data-x="10400" data-y="1600" data-z="0">
         <p class=title>DR1579</p>
         <p class=link>http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#1579</p>
         <p class=link>2012-2014
@@ -970,7 +969,7 @@ Mixer fun2() {
         </div>
         </div>
 <!-- =================================================================================================== -->
-        <div id="Move6" class="step" data-x="10400" data-y="2400" data-z="300">
+        <div id="Move6" class="step" data-x="10400" data-y="2400" data-z="0">
         <p class=title>DR1579 resolution</p>
         <img src=images/rvoMove/DR1579_resolution.PNG>
         <p class=left> wording in C++14
@@ -1014,8 +1013,10 @@ unique_ptr&lt<strong>const MixerInterface</strong>> create()
         <p class=left>- can I perform copy elision? No, types are different.
         <p class=left>- let's create new object.
         <p class=left>- can I treat object as rvalue and try to use move ctor for this?
+        <strong>
         <p class=left>- yes, it's an object with automatic storage duration, go ahead
         <p class=left>- ctor overload successful, converting move ctor chosen
+        </strong>
         <div class=notes>
         <p>- post defect compiler reasoning was like this:
         <p>- ...
