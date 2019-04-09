@@ -971,7 +971,7 @@ unique_ptr&lt<strong>MixerInterface</strong>> create()
 }       </code></pre>
         <p><strong>pre</strong> DR1579 compiler reasoning:
         <p class=left>- can I perform copy elision? No, types are different.
-        <p class=left>- let's create new object.
+        <p class=left>- let's create new object on stack
         <p class=left>- can I treat object as rvalue and try to use move ctor for this?
         <p class=left>- no, criteria here are tied with copy elision.
         <p class=left>- ctor overload resolution with lvalue
@@ -992,7 +992,7 @@ unique_ptr&lt<strong>const MixerInterface</strong>> create()
 }       </code></pre>
         <p><strong>post</strong> DR1579 compiler reasoning:
         <p class=left>- can I perform copy elision? No, types are different.
-        <p class=left>- let's create new object.
+        <p class=left>- let's create new object on stack
         <p class=left>- can I treat object as rvalue and try to use move ctor for this?
         <strong>
         <p class=left>- yes, it's an object with automatic storage duration, go ahead
@@ -1001,8 +1001,10 @@ unique_ptr&lt<strong>const MixerInterface</strong>> create()
         <div class=notes>
         <p>- post defect compiler reasoning was like this:
         <p>- ...
+        <br>=========================================
+        <p>- This finding explains non-compiling problems. Old compiler was using C++11 return move semantics criteria, so ended up throwing an error.
         <p>- newer compiler follows new rules that are not so tightly coupled with copy elision criteria
-        <p>- object of automatic storage doesn't have to be of the same type as fun prototype anymore
+        <p>- object of automatic storage doesn't have to be of the same type as fun prototype anymore so object can be treated as rvalue and move ctor overload can be resolved
         </p>
         </div>
         </div>
@@ -1164,7 +1166,7 @@ unique_ptr<T> fun(unique_ptr<T> && ptr) {
         <div class=notes>
         <p>- compiler error bc it's not automatic storage duration
         <p>- could fix be move
-        <p>- but then again inhibit c.e.
+        <p>- may not sound that bad but...
         </p>
         </div>
         </div>
@@ -1367,9 +1369,11 @@ Base thirteen() {
         </table>         
         <div class=notes>
         <p>- here's our mistery with object slicing
+        <p>- remember our example? - old gcc copy, latest clang copy, latest gcc move
+        <p>-standard: parameter type of resolved ctor overload should be rvalue ref to object type. So rvalue ref to Derived. And actual params type is rvalue ref to Base
         <p>- according to standard copy, gcc is ahead.
         </p>
-        And here's our mistery with object slicing and copy vs move on clang and gcc is solved.
+        <br>And here's our mistery with object slicing and copy vs move on clang and gcc is solved.
         According to standard copy, gcc is ahead.
         </div>
         </div>
@@ -1442,7 +1446,7 @@ Base thirteen() {
         std::array, std::basic_string, std::function, std::variant, std::optional and others<br><br>
         may store a lot of data on stack
         <div class=notes>
-        <p>-
+        <p>- if you interested in examples, please reach out to paper
         </p>
         </div>
         </div>                
