@@ -146,8 +146,61 @@ em {
             <p>- ended with compiler RVO: copy elision and move semantics</p>
             </div>
         </div>
+        <div id="compile1b" class="step" data-x="-1300" data-y="-800" data-z="-1000" style="font-size:45px;">
+            <p class=title>Copy elision recall</p>
+            <pre><code><p style="text-align:left; font-size:30;">
+auto fun1()
+{
+    return std::vector<int>(100);
+    // RVO (Return Value Optimization)
+}
+
+auto fun2()
+{
+    std::vector<int> vec(100);
+    return vec;
+    // Named RVO
+}
+
+auto vec = fun1();   // only one ctor call - copy elided
+auto vec = fun2();   // only one ctor call - copy elided
+            </p></code></pre>
+            <div class=notes>
+            <p> - copy elision recall
+            <p> - ctor called only onec
+            <p> - even though language rules say that there will be a copy
+            <p> - compiler optimization
+            </div>
+        </div>
+        <div id="compile1c" class="step" data-x="-1300" data-y="-800" data-z="-2000" style="font-size:45px;">
+            <p class=title>Move semantics recall</p>
+            <pre><code><p style="text-align:left; font-size:30;">
+std::vector<int> vec(100);
+
+auto vec_copy = vec;
+auto vec_move = std::move(vec);
+
+
+
+
+vector::vector(const T&) - <b>copy</b> ctor overload resolution for lvalues
+vector::vector(T&&)      - <b>move</b> ctor overload resolution for rvalues
+
+
+std::move - only casts to rvalue reference
+            </p></code></pre>
+            <div class=notes>
+            <p> - move semantics recall
+            <p> - new object created - by copy and by move
+            <p> - move usually steals memory oh heap
+            <p> - leaves object in unspecified but valid state
+            <p> - ctor overload resolution decides how new object is created
+            <p> - std::move - no move but cast
+            </div>
+        </div>
 <!-- =================================================================================================== -->
         <div id="compile2" class="step" data-x="-2600" data-y="0" data-z="0">
+        <p class=title>Back to story</p>
             <pre><code><p style="text-align: left">
 class Combiner { ... };
 
@@ -189,13 +242,13 @@ unique_ptr&ltCombiner> create()
 <!-- =================================================================================================== -->
         <div id="compile4" class="step" data-x="-2600" data-y="0" data-z="0">
             <div class=notes>
-            <p>- In this case RVO inhibited
+            <p>- In this case c.e. inhibited
             <p>- different return types
             <p>- logged a comment, went back to other tasks
             <p>- collegue fixed here and few other places
             <p>- problem</p>
 
-            In this case - RVO would be inhibited bc function return type and actually returned type
+            In this case - c.e. would be inhibited bc function return type and actually returned type
             are different - unique_ptr and rvalue reference to unique_ptr.
             So I logged a comment on that you shouldn’t use move on return from function. I also put there
             few links explaining why, a quote with explanation from Meyers book, and went back to other tasks.
@@ -218,9 +271,9 @@ unique_ptr&lt<strong>MixerInterface</strong>> create()
 }
             </p></code></pre>
             <div class=notes>
-            <p>- almost the same
+            <p>- almost the same, only class hierarchy
             <p>- also unique_ptrs
-            <p>- only difference - auto
+            <p>- only difference - auto deduces different type
             <p>- returnes derived class</p>
             </div>
         </div>
@@ -242,13 +295,13 @@ error: cannot bind 'unique_ptr&ltMixer>' lvalue
             </p></code></pre>
         <div class=notes>
         <p>- compiler error - can't bind lvalue to rvalue ref
-        <p>- obviously no RVO but move ctor (fine cause different type)
+        <p>- obviously no c.e. but move ctor (fine cause different type)
         <p>- why lvalue error?
         <p>- not a rocket science code
         </p>
 
         How surprised were we, when it turned out that this function produced compiler error.
-        And it was kind of not obvious in the beginning - obviously no RVO happened cause compiler tried
+        And it was kind of not obvious in the beginning - obviously no c.e. happened cause compiler tried
         to fire move ctor for unique_ptr (types are different), but had only lvalue available.
         Why is there lvalue error?
         </div>
@@ -263,11 +316,8 @@ note: initializing argument 1 of
 
 
 
+
 unique_ptr&lt<strong>MixerInterface</strong>>::unique_ptr(unique_ptr&lt<strong>Mixer</strong>>&& u);
-
-
-
-unique_ptr&ltMixerInterface>(mixer);
             </p></code></pre>
         <div class=notes>
         <p>- converting move ctor
@@ -296,8 +346,6 @@ unique_ptr&ltMixerInterface>(mixer);
 unique_ptr&lt<strong>MixerInterface</strong>> create()
 {
     unique_ptr&lt<strong>MixerInterface</strong>> mixer = make_unique&lt<strong>Mixer</strong>>();
-    mixer->init();
-    ...
     return mixer;
     // OK - NRVO
 }
