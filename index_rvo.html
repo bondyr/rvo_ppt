@@ -1097,6 +1097,7 @@ unique_ptr&lt<strong>const MixerInterface</strong>> create()
         <p><strong>pre</strong> DR1579 compiler reasoning:
         <p class=left>- can I perform copy elision?
         <br>- no cause different types.
+        <br>- let's create new object on stack
         <br>- evaluate expression.
         <br>- can I treat object as rvalue and try to use move ctor for this?
         <br>- no, since criteria are the same as for copy elision.
@@ -1104,7 +1105,8 @@ unique_ptr&lt<strong>const MixerInterface</strong>> create()
         <br>- implicit cast to return type
         <br>- ctor overload resolution - copy ctor
         <p>
-        <p class=left>In unique_ptrs both decisions were also negative, but no implicit cast was available.
+        <p class=left>In unique_ptrs both decisions were also negative.
+		<br>But no implicit cast nor copy ctor were available.
         <div class=notes>
         <p>- 
         </p>
@@ -1121,6 +1123,7 @@ unique_ptr&lt<strong>const MixerInterface</strong>> create()
         <p><strong>post</strong> DR1579 compiler reasoning:
         <p class=left>- can I perform copy elision?
         <br>- no cause different types.
+        <br>- let's create new object on stack
         <br>- evaluate expression.
         <br>- can I treat object as rvalue and try to use move ctor for this?
         <br><strong>- yes, it's an object with automatic storage duration, go ahead
@@ -1227,8 +1230,8 @@ auto fun(args...) {
     return forward&ltdecltype(result)>(result);
 }
         </code></pre>
-        <p class=left>with std::forward, RVO inhibited when result is a value
-        <p class=left>without std::forward, doesn't compile when result is rvalue ref and move only 
+        <p class=left>with std::forward, RVO inhibited when result is a value and not a reference
+        <p class=left>without std::forward, doesn't compile when result is rvalue ref and is move only 
         <div class=notes>
         <p>- may not sound that bad but consider generic case
         <p>- fun accepts parameter pack
@@ -1596,7 +1599,7 @@ there're optimization areas to work on. That's amazing.
         </a><br>
         <a href=
         "http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2002/n1377.htm" style="float:left;">
-        [11]  Move semantics proposal from 2002
+        [11]  A proposal to add move semantics support to the C++ Language - 2002
         </a><br>        
         <a href=
         "http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#1579" style="float:left;">
