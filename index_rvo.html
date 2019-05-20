@@ -146,6 +146,7 @@ em {
             <p>- ended with compiler RVO: copy elision and move semantics</p>
             </div>
         </div>
+<!-- =============================================================================================================== -->
         <div id="compile1b" class="step" data-x="-1300" data-y="-800" data-z="-1000" style="font-size:45px;">
             <p class=title>Copy elision recall</p>
             <pre><code><p style="text-align:left; font-size:30;">
@@ -172,6 +173,7 @@ auto vec = fun2();   // only one ctor call - copy elided
             <p> - compiler optimization
             </div>
         </div>
+<!-- =============================================================================================================== -->
         <div id="compile1c" class="step" data-x="-1300" data-y="-800" data-z="-2000" style="font-size:45px;">
             <p class=title>Move semantics recall</p>
             <pre><code><p style="text-align:left; font-size:30;">
@@ -334,31 +336,88 @@ unique_ptr&lt<strong>MixerInterface</strong>>::unique_ptr(unique_ptr&lt<strong>M
         </div>
         </div>
 <!-- =================================================================================================== -->
-        <div id="compile8" class="step" data-x="-2600" data-y="2400" data-z="0">
+        <div id="compile7c" class="step" data-x="-2600" data-y="2400" data-z="-2000">
             <p class=title>So debugging starts...</p>
-            <pre><code><p style="text-align:left; font-size:30;">unique_ptr&lt<strong>MixerInterface</strong>> create()
+            <pre><code><p style="text-align:left; font-size:30;">
+A)
+unique_ptr&lt<strong>MixerInterface</strong>> create()
 {
-    return make_unique&lt<strong>Mixer</strong>>();
-    // OK - move ctor
+    unique_ptr&lt<strong>Mixer</strong>> mixer = make_unique&ltMixer>();
+    return mixer;
+    // compiler error, as before
 }
 
 
+B)
 unique_ptr&lt<strong>MixerInterface</strong>> create()
 {
-    unique_ptr&lt<strong>MixerInterface</strong>> mixer = make_unique&lt<strong>Mixer</strong>>();
+    unique_ptr&lt<strong>MixerInterface</strong>> mixer = make_unique&ltMixer>();
     return mixer;
-    // OK - NRVO
+    // OK - copy elision (NRVO)
 }
             </p></code></pre>
         <div class=notes>
         <p>- debugging - check if compiles
-        <p>- return pure rvalue object directly, with move op
-        <p>- returns lvalue object of type MixerInterface - NRVO
+        <p>- auto removed, lvalue object of type Mixer - still error
+        <p>- lvalue object of type MixerInterface - NRVO
         </p>
         We started debugging to see what's going on, and checked that these 2 pieces of code are compiled fine.
         </div>
         </div>
+<!-- =============================================================================================================== -->
+        <div id="compile8" class="step" data-x="-2600" data-y="2400" data-z="-1000">
+            <pre><code><p style="text-align:left; font-size:30;">
+C)
+unique_ptr&lt<strong>MixerInterface</strong>> create()
+{
+    return make_unique&lt<strong>MixerInterface</strong>>();
+    // OK - copy elision (RVO)
+}
 
+
+D)
+unique_ptr&lt<strong>MixerInterface</strong>> create()
+{
+    return make_unique&lt<strong>Mixer</strong>>();
+    // OK!
+    // And move ctor
+}
+            </p></code></pre>
+        <div class=notes>
+        <p>- return pure rvalue object directly, base class - RVO
+        <p>- the same but derived class
+        <p>- surprisingly works, with move op
+        </p>
+        </div>
+        </div>
+<!-- =============================================================================================================== -->
+        <div id="compile8a" class="step" data-x="-2600" data-y="2400" data-z="0">
+            <p class=title>Weird...</p>
+            <pre><code><p style="text-align:left; font-size:30;">
+A)
+unique_ptr&lt<strong>MixerInterface</strong>> create()
+{
+    unique_ptr&lt<strong>Mixer</strong>> mixer = make_unique&ltMixer>();
+    return mixer;
+    // compiler error, as before
+}
+
+
+D)
+unique_ptr&lt<strong>MixerInterface</strong>> create()
+{
+    return make_unique&lt<strong>Mixer</strong>>();
+    // OK!
+    // And move ctor
+}
+            </p></code></pre>
+        <div class=notes>
+        <p>- return named object - error
+        <p>- return unnamed object - perfectly fine
+        </p>
+        Turns out that when returning named object, there's an error and when returning unnamed it's perfectly fine
+        </div>
+        </div>
 <!-- =============================================================================================================== -->
         <div id="compile9" class="step" data-x="-2600" data-y="1600" data-z="0">
         <p class=title>Another compilation error</p>
@@ -552,6 +611,7 @@ MixerInterface create()
         <div id="copyElision4" class="step" data-x="3900" data-y="800" data-z="0">
         <p class="title2">Copy elision - extracted<br><br></p>
         <p>- automatic storage
+        <p>- temporary object
         <p>- the same type
         <p>- results "as if" copies were made
         <div class=notes>
@@ -676,7 +736,7 @@ void fun6() {
             <pre><code><p style="text-align: left">
 // no RVO
 Mixer create1(int q) {
-    Mixer x1, x2;
+    <b>Mixer x1, x2;</b>
     if(q > 4)
         return x1;
     else
@@ -693,11 +753,11 @@ Mixer create1(int q) {
 // optimized for RVO
 Mixer create2(int q) { 
     if(q > 4) {
-        Mixer x1, x2;
+        <b>Mixer x1;</b>
         return x1;
     }
     else {
-        Mixer x1, x2;
+        <b>Mixer x2;</b>
         return x2;
     }
 }
@@ -709,16 +769,16 @@ Mixer create2(int q) {
 <!-- =================================================================================================== -->
         <div id="copyElision13" class="step" data-x="1300" data-y="3200" data-z="0">
             <pre><code><p style="text-align: left">
-bool pred(Mixer& x1, Mixer& x2)
+bool pred(const Mixer& x1, const Mixer& x2)
 {
     return x1 > x2;
 }
 
 
 // no RVO possible
-Mixer create3(int q) {
+Mixer create3() {
     Mixer x1, x2;
-    if(pred(x1,x2))
+    if(<b>pred(x1,x2)</b>)
         return x1;
     else
         return x2;
