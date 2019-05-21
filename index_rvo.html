@@ -617,7 +617,6 @@ MixerInterface create()
         <div id="copyElision4" class="step" data-x="3900" data-y="800" data-z="0">
         <p class="title2">Copy elision - extracted<br><br></p>
         <p>- automatic storage
-        <p>- temporary object
         <p>- the same type
         <p>- results "as if" copies were made
         <div class=notes>
@@ -750,7 +749,7 @@ Mixer create1(int q) {
 }
             </p></code></pre>
         <div class=notes>
-        <p>- no RVO cause needs to know which object to put into caler storage
+        <p>- no c.e. cause needs to know which object to put into caler storage
         </div>
         </div>
 <!-- =================================================================================================== -->
@@ -769,7 +768,7 @@ Mixer create2(int q) {
 }
             </p></code></pre>
         <div class=notes>
-        <p>- smart compiler can optimise to this - RVO
+        <p>- smart compiler can optimise this end perform c.e.
         </div>
         </div>
 <!-- =================================================================================================== -->
@@ -791,7 +790,7 @@ Mixer create3() {
 }           </p></code></pre>
         <p>Never depend on side effects in move/copy ctor, as small change in code can allow or inhibit RVO.</p>
         <div class=notes>
-        <p>- no RVO cause both objects need to be created before decision which should be returned
+        <p>- no c.e. cause both objects need to be created before decision which should be returned
         <p>- never depend on side effects from copy/move ctors
         <p>- small change may allow or inhibit RVO
         </p>
@@ -925,7 +924,7 @@ Factory getFactory() { return Factory{}; }
         <p class=left>- prvalue - initializer of object</p>
         <p class=left>- glvalue - location of object</p>
         <p class=left>- if prvalue is used as the initializer of an object with the same type, it initializes it directly
-        <p class=left>- value returned from function, when init with temporary, is initialized directly, no copy/move
+        <p class=left>- consequence - when function returns object that is initialized by temporary, object is initialized directly, no copy/move op
         <p class=left>- no copy/move ctor needed
         <div class=notes>
         <p>- name of proposal
@@ -952,6 +951,7 @@ Factory getFactory() { return Factory{}; }
         <pre class=left><code>
 auto factory = getFactory(); // OK in C++17
         </code></pre>
+        <p class=left>- RVO only, NRVO works old way
         <p class=left>- it's not copy elision anymore
         <p class=left>- no copy to elide
         <p class=left><strong>- deferred temporary materialization</strong></p>
@@ -1193,15 +1193,15 @@ unique_ptr&lt<strong>const MixerInterface</strong>> create()
         <br>- evaluate expression.
         <br>- can I treat object as rvalue and try to use move ctor for this?
         <br><strong>- yes, it's an object with automatic storage duration, go ahead
-        <br>- type of ctor arg is not rvalue ref to its param's type</strong>
+        <br>- but type of ctor arg is not rvalue ref to its param's type so I can't</strong>
         <br>- so need to treat as lvalue
         <br>- implicit cast to return type
         <br>- ctor overload resolution - copy ctor
         <div class=notes>
         <p>- newer comp reasons the same
         <p>- for decision whether use move ctor uses different from copy elision
-        <p>- so tries to overload ctor with rval ref
-        <p>- overload fails bc no converting ctor for base class present
+        <p>- positive decision on object automatic storage duration
+        <p>- but negative on object type being different from move ctor parameter
         <p>- the rest of mechanism is the same
         </p>
         Newr compiler, with bug fixed reasons the same, but for decision whether to use move ctor doesn't use criteria
