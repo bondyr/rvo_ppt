@@ -1300,7 +1300,7 @@ auto fun(args...) {
         <p class=left>without std::forward, doesn't compile when result is rvalue ref and is move only 
         <div class=notes>
         <p>- may not sound that bad but consider generic case
-        <p>- fun accepts parameter pack
+        <p>- some_other_fun returns either rvalue ref or a value and returns it
         <p>- depending on result type, it either doesn't compile or inhibits c.e.
         </p>
         </div>
@@ -1316,8 +1316,7 @@ string f(std::string x) { return x; }
 string g(string && x) { return x; }
         </code></pre>
         <div class=notes>
-        <p>- ...
-        <p>- assuming no copy elision
+        <p>-
         </p>
         </div>
         </div>
@@ -1487,7 +1486,7 @@ Base thirteen() {
         <div class=notes>
         <p>- here's our mistery with object slicing
         <p>- remember our example? - old gcc copy, latest clang copy, latest gcc move
-        <p>-standard: parameter type of resolved ctor overload should be rvalue ref to object type. So rvalue ref to Derived. And actual params type is rvalue ref to Base
+        <p>-standard: parameter type of resolved ctor overload should be rvalue ref to object type. Here object type is Derived and ctor param is rvalue ref to Base
         <p>- according to standard copy, gcc is ahead.
         </p>
         <br>And here's our mistery with object slicing and copy vs move on clang and gcc is solved.
