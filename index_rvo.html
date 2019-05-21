@@ -167,10 +167,12 @@ auto vec = fun1();   // only one ctor call - copy elided
 auto vec = fun2();   // only one ctor call - copy elided
             </p></code></pre>
             <div class=notes>
-            <p> - copy elision recall
-            <p> - ctor called only onec
-            <p> - even though language rules say that there will be a copy
-            <p> - compiler optimization
+            <p>- 2 funs returning by value
+            <p>- unnamed and named one
+            <p>- even though language rules say that there should be 3 objects
+            <p>- ctor called only onec
+            <p>- compiler optimization
+            <p>- allowed and not obligated to
             </div>
         </div>
 <!-- =============================================================================================================== -->
@@ -189,15 +191,18 @@ vector::vector(const T&) - <b>copy</b> ctor overload resolution for lvalues
 vector::vector(T&&)      - <b>move</b> ctor overload resolution for rvalues
 
 
-std::move - only casts to rvalue reference
+std::move    - only casts to rvalue reference
+std::forward - conditional move
             </p></code></pre>
             <div class=notes>
-            <p> - move semantics recall
-            <p> - new object created - by copy and by move
-            <p> - move usually steals memory oh heap
-            <p> - leaves object in unspecified but valid state
-            <p> - ctor overload resolution decides how new object is created
-            <p> - std::move - no move but cast
+            <p>- 2 objects created - one by copy and one by move
+            <p>- ctor overload resolution decides how new object is created
+            <p>- both lvalue and rvalue bind to copy ctor param 
+            <p>- unless there's move ctor, then rvalue binds to move ctor param
+            <p>- move op usually steals memory oh heap, copies one on stack
+            <p>- leaves object in unspecified but valid state
+            <p>- std::move - no move but cast
+            <p>- std::forward - conditional move
             </div>
         </div>
 <!-- =================================================================================================== -->
@@ -357,11 +362,10 @@ unique_ptr&lt<strong>MixerInterface</strong>> create()
 }
             </p></code></pre>
         <div class=notes>
-        <p>- debugging - check if compiles
+        <p>- started debugging
         <p>- auto removed, lvalue object of type Mixer - still error
-        <p>- lvalue object of type MixerInterface - NRVO
+        <p>- still lvalue, type changed to MixerInterface - NRVO
         </p>
-        We started debugging to see what's going on, and checked that these 2 pieces of code are compiled fine.
         </div>
         </div>
 <!-- =============================================================================================================== -->
@@ -385,8 +389,8 @@ unique_ptr&lt<strong>MixerInterface</strong>> create()
             </p></code></pre>
         <div class=notes>
         <p>- return pure rvalue object directly, base class - RVO
-        <p>- the same but derived class
-        <p>- surprisingly works, with move op
+        <p>- the same but returns derived class
+        <p>- surprisingly works, but with move op
         </p>
         </div>
         </div>
@@ -412,10 +416,11 @@ unique_ptr&lt<strong>MixerInterface</strong>> create()
 }
             </p></code></pre>
         <div class=notes>
-        <p>- return named object - error
-        <p>- return unnamed object - perfectly fine
+        <p>- let's compare A and D case
+        <p>- returns named object - error
+        <p>- returns unnamed object - perfectly fine
         </p>
-        Turns out that when returning named object, there's an error and when returning unnamed it's perfectly fine
+        Turns out that when returning named object, there's an error and when returning unnamed it's perfectly fine!
         </div>
         </div>
 <!-- =============================================================================================================== -->
@@ -571,7 +576,8 @@ MixerInterface create()
         <p>- even if ctor/dtor have side efects
         <p>- objects constructed directly in the storage they'd be copied to
         <p>- copy/move ctors need to be present anyway
-        <p>- debug mode
+        <p>- not in debug mode
+        <p>- portability vs ctor/dtor side effects
         </p>
         <div class=notes>
         <p>-
