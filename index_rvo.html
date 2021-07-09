@@ -42,12 +42,23 @@ a {
     font-size:25;
 }
 
+/*
+to modify a specific slide
+.impress-on-compile10 .step code.hljs {
+	font-size: 7px;
+}
+*/
+
 .step {
     text-align: center;
     width: 1014px;
-/*     margin: 0px 20px; */
      margin-left:10px;
      margin-right:10px;
+}
+
+.step code.hljs {
+    text-align: left;
+    font-size: 23px;
 }
 
 .notes {
@@ -129,7 +140,7 @@ em {
             <div class="notes">
             <p>- journey</p>
 
-            I’d like to take you for a journey that I set off couple months ago.
+            I’d like to take you for a journey that I set off during one of projects.
             </div>
         </div>
 <!-- =================================================================================================== -->
@@ -142,7 +153,7 @@ em {
             <br><br>
             <p>RVO</p>
             <div class=notes>
-            <p>- started with mix of auto, smart_ptrs, move semantics</p>
+            <p>- started with a mix of auto, smart_ptrs, move semantics</p>
             <p>- ended with compiler RVO: copy elision and move semantics</p>
             </div>
         </div>
@@ -152,13 +163,13 @@ em {
             <pre><code><p style="text-align:left; font-size:30;">
 auto fun1()
 {
-    return std::vector<int>(100);
+    return std::vector&ltint&gt(100);
     // RVO (Return Value Optimization)
 }
 
 auto fun2()
 {
-    std::vector<int> vec(100);
+    std::vector&ltint&gt vec(100);
     return vec;
     // Named RVO
 }
@@ -179,7 +190,7 @@ auto vec = fun2();   // only one ctor call - copy elided
         <div id="compile1c" class="step" data-x="-1300" data-y="-800" data-z="-2000" style="font-size:45px;">
             <p class=title>Move semantics recall</p>
             <pre><code><p style="text-align:left; font-size:30;">
-std::vector<int> vec(100);
+std::vector&ltint&gt vec(100);
 
 auto vec_copy = vec;
 auto vec_move = std::move(vec);
@@ -198,8 +209,8 @@ std::forward - conditional move
             <p>- 2 objects created - one by copy and one by move
             <p>- ctor overload resolution decides how new object is created
             <p>- both lvalue and rvalue bind to copy ctor param 
-            <p>- unless there's move ctor, then rvalue binds to move ctor param
-            <p>- move op usually steals memory oh heap, copies one on stack
+            <p>- unless there's a move ctor, then rvalue binds to move ctor param
+            <p>- move op usually steals memory on heap, copies the one on stack
             <p>- leaves object in unspecified but valid state
             <p>- std::move - no move but cast
             <p>- std::forward - conditional move
@@ -257,15 +268,14 @@ unique_ptr&ltCombiner> create()
 
             In this case - c.e. would be inhibited bc function return type and actually returned type
             are different - unique_ptr and rvalue reference to unique_ptr.
-            So I logged a comment on that you shouldn’t use move on return from function. I also put there
+            So I logged a comment that you shouldn’t use move on return from function. I also put there
             few links explaining why, a quote with explanation from Meyers book, and went back to other tasks.
-            My collegue noticed comment, fixed code in this place and few other places that were also returning
-            move and… told me that there’s a problem.
+            My collegue noticed the comment, fixed code and… told me that there was a problem.
             </div>
         </div>
 <!-- =================================================================================================== -->
         <div id="compile5" class="step" data-x="-3900" data-y="800" data-z="10" style="text-align: left;">
-            <pre><code><p>
+            <pre><code><p style="text-align: left; font-size:30;">
 class MixerInterface{...};
 class Mixer : public MixerInterface {...};
 
@@ -276,8 +286,14 @@ unique_ptr&lt<strong>MixerInterface</strong>> create()
     ...
     return <strong>move(mixer)</strong>;
 }
+
+
+
+
+
             </p></code></pre>
             <div class=notes>
+			<p>- this is actual code, prev one was a bit simplified
             <p>- almost the same, only class hierarchy
             <p>- also unique_ptrs
             <p>- only difference - auto deduces different type
@@ -285,8 +301,11 @@ unique_ptr&lt<strong>MixerInterface</strong>> create()
             </div>
         </div>
 <!-- =================================================================================================== -->
-        <div id="compile6" class="step" data-x="-3900" data-y="1600" data-z="0">
+        <div id="compile6" class="step" data-x="-3900" data-y="800" data-z="0">
             <pre><code><p style="text-align: left; font-size:30;">
+class MixerInterface{...};
+class Mixer : public MixerInterface {...};			
+			
 unique_ptr&lt<strong>MixerInterface</strong>> create()
 {
     auto mixer = make_unique&lt<strong>Mixer</strong>>();
@@ -314,7 +333,7 @@ error: cannot bind 'unique_ptr&ltMixer>' lvalue
         </div>
         </div>
 <!-- =================================================================================================== -->
-        <div id="compile7" class="step" data-x="-3900" data-y="2400" data-z="0">
+        <div id="compile7" class="step" data-x="-3900" data-y="1600" data-z="0">
             <pre><code><p style="text-align:left; font-size:28;">
 note: initializing argument 1 of
 'unique_ptr<_Tp, _Dp>::unique_ptr(unique_ptr<_Up, _Ep>&&)
@@ -327,7 +346,8 @@ note: initializing argument 1 of
 unique_ptr&lt<strong>MixerInterface</strong>>::unique_ptr(unique_ptr&lt<strong>Mixer</strong>>&& u);
             </p></code></pre>
         <div class=notes>
-        <p>- converting move ctor
+        <br>- no copy ctor in unique_ptr
+		<br>- converting move ctor
         <br>on type of base class
         <br>with param type of derived class
         <br>mix of auto unique_ptr and hierarchy is broken</p>
@@ -335,7 +355,7 @@ unique_ptr&lt<strong>MixerInterface</strong>>::unique_ptr(unique_ptr&lt<strong>M
         </div>
         </div>
 <!-- =================================================================================================== -->
-        <div id="compile7b" class="step" data-x="-3900" data-y="1600" data-z="0">
+        <div id="compile7b" class="step" data-x="-3900" data-y="800" data-z="0">
         <div class=notes>
         <p>- can't bind lval to rval ref</p>
         </div>
@@ -427,6 +447,7 @@ unique_ptr&lt<strong>MixerInterface</strong>> create()
         <div id="compile9" class="step" data-x="-2600" data-y="1600" data-z="0">
         <p class=title>Another compilation error</p>
             <pre><code><p style="text-align:left; font-size:30;">
+E)			
 unique_ptr&lt<strong>const MixerInterface</strong>> create()
 {
     auto mixer = make_unique&lt<strong>MixerInterface</strong>>();
@@ -452,13 +473,14 @@ unique_ptr(unique_ptr&lt<strong>MixerInterface</strong>>&& u);
         <div id="compile10" class="step" data-x="-2600" data-y="800" data-z="0">
         <p class=title>Let's drop unique_ptr for few secs</p>
             <pre><code><p style="text-align:left; font-size:35;">
+F)
 <strong>MixerInterface</strong> create()
 {
     return <strong>Mixer()</strong>;
     // OK - move ctor
 }
 
-
+G)
 <strong>MixerInterface</strong> create()
 {
     <strong>Mixer</strong> x;
@@ -488,25 +510,23 @@ unique_ptr(unique_ptr&lt<strong>MixerInterface</strong>>&& u);
         <div id="compile12" class="step" data-x="-1300" data-y="1600" data-z="0">
             non-compiling examples on gcc 5.1+
             <pre><code><p style="text-align:left; font-size:26;">
+A)
 unique_ptr&lt<strong>MixerInterface</strong>> create()
 {
     auto mixer = make_unique&lt<strong>Mixer</strong>>();
     return <strong>mixer</strong>;
     // OK - move ctor
 }
-unique_ptr&ltMixerInterface>::
-unique_ptr&ltMixer>(unique_ptr&ltMixer>&& u)
 
 
+
+E)
 unique_ptr&lt<strong>const MixerInterface</strong>> create()
 {
     auto mixer = make_unique&lt<strong>MixerInterface</strong>>();
     return mixer;
     // OK - move ctor
 }
-unique_ptr&ltMixerInterface const>::
-unique_ptr&ltMixerInterface>(unique_ptr&ltMixerInterface>&& u)
-
             </p></code></pre>
         <div class=notes>
         <p>- non-compiling examples on newer compiler - ok
@@ -518,6 +538,7 @@ unique_ptr&ltMixerInterface>(unique_ptr&ltMixerInterface>&& u)
         <div id="compile13" class="step" data-x="-1300" data-y="2400" data-z="0">
             object slicing on gcc 8.1+
             <pre><code><p style="text-align:left; font-size:30;">
+G)			
 MixerInterface create()
 {
     Mixer x;
@@ -525,7 +546,7 @@ MixerInterface create()
     // OK - move ctor now!
 }
             </p></code></pre>
-            <img src=images/nonCompile/create_gcc.png>
+            <img src=images/nonCompile/create_gcc.PNG>
         <div class=notes>
         <p>- object slicing again
         <p>- newer compiler
@@ -534,8 +555,9 @@ MixerInterface create()
         </div>
         </div>
         <div id="compile14" class="step" data-x="-1300" data-y="3200" data-z="0">
-            object slicing on latest clang 8.0.0
+            object slicing on clang 8.0.0
             <pre><code><p style="text-align:left; font-size:30;">
+G)
 MixerInterface create()
 {
     Mixer x;
@@ -543,7 +565,7 @@ MixerInterface create()
     // OK - still copy ctor
 }
             </p></code></pre>
-            <img src=images/nonCompile/create_clang.png>
+            <img src=images/nonCompile/create_clang.PNG>
         <div class=notes>
         <p>- on clang still copy ctor
         <p>- weird
@@ -576,13 +598,13 @@ MixerInterface create()
         <p>- even if ctor/dtor have side efects
         <p>- objects constructed directly in the storage they'd be copied to
         <p>- copy/move ctors need to be present anyway
-        <p>- not in debug mode
+        <p>- not in debug mode (-g flag)
         <p>- portability vs ctor/dtor side effects
         </p>
         <div class=notes>
         <p>-
         </p>
-        It's a mechanism that under certain conditions allows compiler, but not requires to, to omit copy and move constructors, even if the copy/move constructor and the destructor have observable side-effects. The objects are constructed directly into the storage where they would otherwise be copied/moved to.
+        It's a mechanism that under certain conditions allows compiler, but doesn't require, to omit copy and move constructors, even if the copy/move constructor and the destructor have observable side-effects. The objects are constructed directly into the storage where they would otherwise be copied/moved to.
         This is an optimization: even when it takes place and the copy/move constructor is not called, it still must be present and accessible.
         Because some compilers do not perform copy elision in every situation where it is allowed (e.g., in debug mode), programs that rely on the side-effects of copy/move constructors and destructors are not portable.
         </div>
@@ -592,23 +614,21 @@ MixerInterface create()
         <p>C++ standard wording</p>
         <img src=images/copyElision/copy_elision_standard_cpp14.PNG>
         <div class=notes>
-        <p>- see wording
-        <p>- a lot of text and there's a reason
+        <p>- see wording, a lot of text
         <p>- compiler allowed but not obligated to elide
         <p>- 4 situations
         <p>- on fun return, local variable, purpose of life is to be copied, types the same
-        <p>- for throw statement
+        <p>- for throw expression
         <p>- init with temporary (also the same type)
         <p>- for exception handler
         <p>- quote from cpp14, cpp17 just little reworded
         </p>
-        Let's see whats wording of standard for this. Actually there're a lot of text and there's a reason for this,
-        but we can just focus on highlited part. It says that compiler is allowed but now obligated to elide copies and
+        Let's see standard wording for this. Actually there's a lot of text but we can just focus on a highlited part. It says that compiler is allowed but now obligated to elide copies and
         there're 4 specific situations where it can be done. On function return, where the variable to be copied 
         is a local, it's only purpose of life is to be copied to caller function and it's type is the same as type in
         function prototype.
         Then there's case for copy elision in throw statement, then for object initialization with a temporary object
-        which also need to be of the same type as object being initialized and in the end there's copy elision for
+        which also needs to be of the same type as object being initialized and in the end there's copy elision for
         exception handler. We're going to consider these two mainly.
         This is quote from cpp14, cpp17 is just a little reworded.
         </div>
@@ -642,7 +662,7 @@ Mixer fun2() {
 }
             </p></code></pre>
         <div class=notes>
-        <p>- let's see few examples
+        <p>- let's see a few examples
         <p>- simple RVO and NRVO case
         <p>- unnamed in 1st and named in 2nd object returned
         <p>- assembly code on the right, only default ctor called
@@ -691,51 +711,6 @@ fun3(fun1());   <img style="float:right;" src=images/copyElision/copy_elision_fu
         </div>
         </div>
 <!-- =================================================================================================== -->
-        <div id="copyElision8" class="step" data-x="2600" data-y="1600" data-z="0">
-        <p class=title>Copy elision for exceptions</p>
-            <img style="float:right;" src=images/copyElision/copy_elision_fun4.PNG>     
-            <pre><code><p style="text-align: left">
-void fun4() {
-    // copy-elision in
-    // throw-expression
-    throw Mixer{};
-}
-            </p></code></pre>
-        </div>
-<!-- =================================================================================================== -->
-        <div id="copyElision9" class="step" data-x="2600" data-y="800" data-z="0">
-            <img style="float:right;" src=images/copyElision/copy_elision_fun5.PNG>
-            <pre><code><p style="text-align: left">
-void fun5() {
-    // copy-elision in
-    // throw-expression
-    // no?
-    Mixer x;
-    throw x;
-}
-            </p></code></pre>
-        </div>
-<!-- =================================================================================================== -->
-        <div id="copyElision10" class="step" data-x="1300" data-y="800" data-z="0">
-            <img style="float:right;" src=images/copyElision/copy_elision_fun6.PNG>
-            <pre><code><p style="text-align: left">
-void fun6() {
-    try {
-        fun5();
-    }
-    catch (Mixer x) {
-        // copy-elision in
-        // exception-handler
-        // no?
-        // no move ctor - fine
-    }
-}
-            </p></code></pre>
-        <div class=notes>
-        <p>- C++14 standard has note saying that exception object is always lvalue so no move possible
-        </div>
-        </div>
-<!-- =================================================================================================== -->
         <div id="copyElision11" class="step" data-x="1300" data-y="1600" data-z="0">
         <p class=title>Branching</p>
             <pre><code><p style="text-align: left">
@@ -749,7 +724,7 @@ Mixer create1(int q) {
 }
             </p></code></pre>
         <div class=notes>
-        <p>- no c.e. cause needs to know which object to put into caler storage
+        <p>- no c.e. cause compiler needs to know which object to put into caller storage
         </div>
         </div>
 <!-- =================================================================================================== -->
@@ -798,7 +773,7 @@ Mixer create3() {
         </div>
 <!-- =================================================================================================== -->
         <div id="copyElision14" class="step" data-x="2600" data-y="3200" data-z="0">
-        <p class=title>What's magic behind copy elision</p>
+        <p class=title>What's the magic behind copy elision</p>
         <pre class=left><code>
 Mixer fun() {
     int z;
@@ -811,7 +786,7 @@ Mixer y{fun()};
         <p>How many params fun() takes?
         <div class=notes>
         <p>- mechanics behind c.e.
-        <p>- we have function returning object by value and object returned with it
+        <p>- we have function returning an object by value and the object being returned
         <p>- how many params fun() takes?
         </p>
 
@@ -824,7 +799,8 @@ Mixer y{fun()};
         <p>1 param</p>
 
         <div class=notes>
-        <p>- 
+        <p>- c++ coders would say 0
+		<p>- assembly coders would say 1
         </p>
 
         </div>
@@ -832,7 +808,7 @@ Mixer y{fun()};
 <!-- =================================================================================================== -->            
         <div id="copyElision16" class="step" data-x="3900" data-y="4000" data-z="0">
         <img src=images/copyElision/fun_stack1.PNG>
-        <p><br>1 param
+        <p>1 param<br><br>
         <div class=notes>
         <p>- actually 1 parameter
         </div>
@@ -840,13 +816,19 @@ Mixer y{fun()};
 <!-- =================================================================================================== -->            
         <div id="copyElision17" class="step" data-x="2600" data-y="4000" data-z="0">
         <img src=images/copyElision/fun_stack2.PNG>
+		<p class=left>- the caller allocates space on stack for the return value
+		<p class=left>- and passes this address to the callee
+		<p class=left>- the callee constructs directly in that space		
         <div class=notes>
-        <p>- on assmebly level, address of return value to store returned object to
+		<p>- we have to tell called function where to put the return value
+		<p>- caller allocates space on stack
+		<p>- passes this address to the callee
+		<p>- where the callee creates a new object
         </div>
         </div>
 <!-- =================================================================================================== -->            
         <div id="copyElision18" class="step" data-x="1300" data-y="4000" data-z="0">
-        <img style="float:right" src=images/copyElision/fun_stack3.PNG>
+        <img style="float:right; margin-left: 100px" src=images/copyElision/fun_stack3.PNG>
         <pre class=left><code>
         Mixer fun() {
             int z;
@@ -857,13 +839,13 @@ Mixer y{fun()};
         Mixer y{fun()};
         </code></pre>
         <div class=notes>
-        <p>- in this example fun creates 2 local objects and has info on address of return value
+        <p>- in this example fun creates 2 local objects and has info on the address of the return value
         </div>
         </div>
 <!-- =================================================================================================== -->            
         <div id="copyElision19" class="step" data-x="5200" data-y="0" data-z="0">
         <p class==title>No copy elision</p>
-        <img style="float:right" src=images/copyElision/fun_stack4.PNG>
+        <img style="float:right; margin-left: 100px" src=images/copyElision/fun_stack4.PNG>
         <pre class=left><code>
         Mixer fun() {
             int z;
@@ -877,7 +859,7 @@ Mixer y{fun()};
 <!-- =================================================================================================== -->        
         <div id="copyElision20" class="step" data-x="5200" data-y="800" data-z="0">
         <p class==title>Copy elision</p>
-        <img style="float:right" src=images/copyElision/fun_stack5.PNG>
+        <img style="float:right; margin-left: 100px" src=images/copyElision/fun_stack5.PNG>
         <pre class=left><code>
         Mixer fun() {
             int z;
@@ -913,7 +895,7 @@ Factory getFactory() { return Factory{}; }
         <p>- we need to reach out for singletons
         </p>
         In C++11 and C++14 the main problem is that, without guaranteed elision, you cannot get rid of the move and copy constructor,
-        because elision might not take place. This prevents non-movable types from having functions that return by value,
+        because copy elision might not take place. This prevents non-movable types from having functions that return by value,
         such as factories.
         </div>    
         </div>
@@ -951,7 +933,7 @@ Factory getFactory() { return Factory{}; }
         <pre class=left><code>
 auto factory = getFactory(); // OK in C++17
         </code></pre>
-        <p class=left>- RVO only, NRVO works old way
+        <p class=left>- RVO only, NRVO works the old way
         <p class=left>- it's not copy elision anymore
         <p class=left>- no copy to elide
         <p class=left><strong>- deferred temporary materialization</strong></p>
@@ -1042,9 +1024,34 @@ Mixer fun2() {
         <p>- even if eligible for copy elision, might have decided, as prev section
         </p>
         So when can we use it when criteria for copy elision are met but copy elision is not performed?
-        For sure when compiling with - fno-elide-constructors flag. But remember also that copy elision in cpp11 and cpp14
-        is not required, so even when sth is eligible to copy elision, compiler engineers might have decided not to do so,
-        as in example with exception in previous section.
+        For sure when compiling with - fno-elide-constructors flag. But remember that copy elision in cpp11 and cpp14
+        is not required, so even when sth is eligible to copy elision, compiler engineers might have decided not to do so..
+        </div>
+        </div>
+<!-- =================================================================================================== -->
+        <div id="Move4b" class="step" data-x="10400" data-y="800" data-z="100">
+        <p class=title>Let's recall examples with issues from the beginning</p>
+        <pre><code><p style="text-align:left; font-size:30;">
+A)
+unique_ptr&lt<strong>MixerInterface</strong>> create()
+{
+    unique_ptr&lt<strong>Mixer</strong>> mixer = make_unique&ltMixer>();
+    return mixer;
+    // compiler error
+}
+		
+		
+G)
+<strong>MixerInterface</strong> create()
+{
+    <strong>Mixer</strong> x;
+    return x;
+    // copy or move ctor
+}
+</p></code></pre>
+        <div class=notes>
+        <p>- let's recall the main issues from the beginning
+        </p>
         </div>
         </div>
 <!-- =================================================================================================== -->
@@ -1058,9 +1065,12 @@ Mixer fun2() {
         <p>- after some research
         <p>- DR
         <p>- similar situation
+		<p>- lack of optimization, not a compiler error
         </p>
-        Similar situation to ours but with optional, but the same problem noticed - converting ctor can't be used
-        without explicit std::move on return value. Reported in 2012, resolved in 2014.
+        After some research I found a DR describing a similar situation to ours, with optional type -
+		converting ctor couldn't be used without explicit std::move on return value. The main problem was not a compiler error but
+		a non optimal approach with a copy instead of move, but it's root cause looks the same as ours.
+		Reported in 2012, resolved in 2014.
         </div>
         </div>
 <!-- =================================================================================================== -->
@@ -1085,7 +1095,7 @@ unique_ptr&lt<strong>MixerInterface</strong>> create()
 }       </code></pre>
         <p><strong>pre</strong> DR1579 compiler reasoning:
         <p class=left>- can I perform copy elision? No, types are different.
-        <p class=left>- let's create new object on stack
+        <p class=left>- let's create a new object on stack
         <p class=left>- can I treat object as rvalue and try to use move ctor for this?
         <p class=left>- no, criteria here are tied with copy elision.
         <p class=left>- ctor overload resolution with lvalue
@@ -1106,7 +1116,7 @@ unique_ptr&lt<strong>const MixerInterface</strong>> create()
 }       </code></pre>
         <p><strong>post</strong> DR1579 compiler reasoning:
         <p class=left>- can I perform copy elision? No, types are different.
-        <p class=left>- let's create new object on stack
+        <p class=left>- let's create a new object on stack
         <p class=left>- can I treat object as rvalue and try to use move ctor for this?
         <strong>
         <p class=left>- yes, it's an object with automatic storage duration, go ahead
@@ -1134,7 +1144,7 @@ unique_ptr&lt<strong>const MixerInterface</strong>> create()
         </code></pre>
         <div class=notes>
         <p>- Ok so one can ask why object slicing didn't fail on old compiler?
-        <p>- We have similar situation, with different types returned and to be returned.
+        <p>- We have a similar situation, with different types returned and to be returned.
         </p>
         </div>
         </div>
@@ -1143,7 +1153,7 @@ unique_ptr&lt<strong>const MixerInterface</strong>> create()
         <p class=title>Return statement</p>
         <p class=left>- evaluates the expression
         <p class=left>- terminates current function
-        <p class=left>- and returns the result of the expression to the caller,
+        <p class=left>- returns the result of the expression to the caller,
         <p class=left>- after implicit conversion to the function return type. 
         <div class=notes>
         <p>- when we look at return statement description
@@ -1163,8 +1173,8 @@ unique_ptr&lt<strong>const MixerInterface</strong>> create()
         <p><strong>pre</strong> DR1579 compiler reasoning:
         <p class=left>- can I perform copy elision?
         <br>- no cause different types.
-        <br>- let's create new object on stack
-        <br>- evaluate expression.
+        <br>- let's create a new object on stack
+        <br>- evaluate expression on return
         <br>- can I treat object as rvalue and try to use move ctor for this?
         <br>- no, since criteria are the same as for copy elision.
         <br>- so need to treat it as lvalue.
@@ -1189,8 +1199,8 @@ unique_ptr&lt<strong>const MixerInterface</strong>> create()
         <p><strong>post</strong> DR1579 compiler reasoning:
         <p class=left>- can I perform copy elision?
         <br>- no cause different types.
-        <br>- let's create new object on stack
-        <br>- evaluate expression.
+        <br>- let's create a new object on stack
+        <br>- evaluate expression on return
         <br>- can I treat object as rvalue and try to use move ctor for this?
         <br><strong>- yes, it's an object with automatic storage duration, go ahead
         <br>- but type of ctor arg is not rvalue ref to its param's type so I can't</strong>
@@ -1220,9 +1230,10 @@ unique_ptr&lt<strong>const MixerInterface</strong>> create()
     // gcc 8.1+     - move ctor
     // gcc 8.0-     - copy ctor
     // clang 8.0.0  - copy ctor
-    // c++ standard - copy ctor
+    // c++17 standard - copy ctor
 }</code></pre>
-        gcc is ahead of standard, there's a proposal
+        gcc 8.1+ was ahead of C++17 standard.<br>
+		Luckily there's C++20...
         <div class=notes>
         <p>- last question to answer
         <p>- why ...
@@ -1245,25 +1256,23 @@ unique_ptr&lt<strong>const MixerInterface</strong>> create()
         <p>- not a simple choice and evolving
         <p>- in what state is it now?
         <p>- already seen wording for c++11, 14, 17 modifies
-        <p>- what's next or currently?
+        <p>- what's next?
         <p>- 3 proposals, regarding enhancing criteria
         </p>
         So generally we went through non compiling examples on old compilers, examples that currently on one compiler
         are copied and on the other are moved, we can cleary see that decision how create objects on return 
         is not a simple choice and is still evolving. So in what state it is now?
         We've already seen wording for cpp11 and cpp14 standard, cpp17 modifies it a little with deferred temporary materialization.
-        What's next? Or... actually currently. There're already 3 proposals being processed,
-        regarding enhancing criteria for either copy elision or creating objects on return with move operation.
+        What's next? There're another 3 proposals regarding enhancing criteria for either copy elision or creating objects on return with move operation.
         </div>
         </div>
 <!-- =================================================================================================== -->        
         <div id="Future2" class="step" data-x="2600" data-y="-3000" data-z="0">
         <p class=title>
-        P0527R1<br>
+        P0527<br>
         Implicitly move from rvalue references in return statements</p>
         <p>David Stone</p>
-        <p>2017</p>
-        <p class=link>http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0527r1.html</p>
+		<a href="http://wg21.link/p0527">http://wg21.link/p0527</a>
         <div class=notes>
         <p>-
         </p>
@@ -1274,15 +1283,16 @@ unique_ptr&lt<strong>const MixerInterface</strong>> create()
         <pre class=left><code>
 unique_ptr<T> fun(unique_ptr<T> && ptr) {
     return ptr;
-    //could go with return move(ptr);
-}
-        </code></pre>
+}        </code></pre>
         <p class=left>error: use of deleted function<br>
         'unique_ptr<T>::unique_ptr(const unique_ptr<T>&)'</p> 
+		<p class=left><br><br><br>
+		could be fixed by:
+		<pre class=left><code>return move(ptr);</code>
 
         <div class=notes>
         <p>- compiler error bc it's not automatic storage duration
-        <p>- could fix be move
+        <p>- could be fixed be explicit move
         <p>- may not sound that bad but...
         </p>
         </div>
@@ -1299,7 +1309,7 @@ auto fun(args...) {
         <p class=left>with std::forward, RVO inhibited when result is a value and not a reference
         <p class=left>without std::forward, doesn't compile when result is rvalue ref and is move only 
         <div class=notes>
-        <p>- may not sound that bad but consider generic case
+        <p>- let's consider the generic case
         <p>- some_other_fun returns either rvalue ref or a value and returns it
         <p>- depending on result type, it either doesn't compile or inhibits c.e.
         </p>
@@ -1326,7 +1336,7 @@ string g(string && x) { return x; }
         throw expression and exception declaration.
         <p class=left>- Wording change to include rvalue reference:<br>
         "an object with automatic storage duration" -> "a movable entity"
-        <p><br><br><br>Proposal was approved by EWG in the Kona 2017 meeting.</p>
+        <p><br><br><br>Proposal included in C++20 standard.</p>
         <div class=notes>
         <p>-
         </p>
@@ -1335,15 +1345,12 @@ string g(string && x) { return x; }
 <!-- =================================================================================================== -->        
         <div id="Future7" class="step" data-x="3900" data-y="-3800" data-z="0">
         <p class=title>
-        P1155R2<br>
+        P1155<br>
         More implicit moves</p>
         <p>Arthur O'Dwyer<br>
         David Stone</p>
-        <p>2018-future</p>
-        <p class=link>http://quuxplusone.github.io/draft/d1155-more-implicit-moves.html</p>
+		<a href="http://wg21.link/p1155">http://wg21.link/p1155</a>
         <div class=notes>
-        <p>- on open-std R1 from November
-        <p>- here R2 from January
         <p>- presented on cppcon 2018
         <p>- great talk, just half an hour
         </p> 
@@ -1356,7 +1363,7 @@ string g(string && x) { return x; }
         Occasionally, C++ violates their expectations and performs an expensive copy anyway. [...]"</p>
         <div class=notes>
         <p>- paper starts with this quote
-        <p>- programmes often expect copy elision or at leas move op, but get expensive copy instead
+        <p>- programmes often expect copy elision or at least move op, but get expensive copy instead
         </p>
         </div>
         </div>
@@ -1365,7 +1372,7 @@ string g(string && x) { return x; }
         <p class titile>Current iso cpp wording has issues</p><br>
         <img src=images/proposals/cpp17_wording_issues.PNG>
         <div class=notes>
-        <p>- present current c++ standard wording and points out issues:
+        <p>- Here's c++17 standard wording that points out issues:
         <p>- other than function parameter
         <p>- only constructor
         <p>- type of rvalue reference
@@ -1385,7 +1392,7 @@ void seven(Widget w) {
         <p class=left>Note:</p>
         <table id="table_style">
           <tr>
-            <td>current Standard wording</td>
+            <td>C++17 standard wording</td>
             <td>- copy</td>
           </tr>
           <tr>
@@ -1400,7 +1407,7 @@ void seven(Widget w) {
         <div class=notes>
         <p>- paper goes with simple examples as c.e or move construction
         <p>- we've been through most of them
-        <p>- switches to examples that surprise
+        <p>- let's see the ones that haven't been covered here yet
         </p>
         </div>
         </div>
@@ -1441,7 +1448,7 @@ Fowl eleven() {
         <p class=left>Note:</p>
         <table id="table_style">
           <tr>
-            <td>current Standard wording</td>
+            <td>C++17 standard wording</td>
             <td>- copy</td>
           </tr>
           <tr>
@@ -1471,7 +1478,7 @@ Base thirteen() {
         <p class=left>Note:</p>
         <table id="table_style">
           <tr>
-            <td>current Standard wording</td>
+            <td>C++17 standard wording</td>
             <td>- copy</td>
           </tr>
           <tr>
@@ -1485,7 +1492,7 @@ Base thirteen() {
         </table>         
         <div class=notes>
         <p>- here's our mistery with object slicing
-        <p>- remember our example? - old gcc copy, latest clang copy, latest gcc move
+        <p>- remember our example? - old gcc copy, newer clang copy, newer gcc move
         <p>-standard: parameter type of resolved ctor overload should be rvalue ref to object type. Here object type is Derived and ctor param is rvalue ref to Base
         <p>- according to standard copy, gcc is ahead.
         </p>
@@ -1497,11 +1504,10 @@ Base thirteen() {
         <div id="Future14" class="step" data-x="2600" data-y="-5400" data-z="0" style="font-size:30px">         
         <p style="font-size:40px">"We propose to remove all four of these unnecessary limitations."</p>
         
-        <p class=left>- already implemented in clang (available since 02.2018)
+        <p class=left>- implemented in clang in 02.2018
         <p class=left>- -Wreturn-std-move (enabled as part of -Wmove, -Wmost, and -Wall)
         <p class=left>- overload resolution done twice - standard rules and the ones proposed here
         <p class=left>- if they differ, then diagnostic warning is emitted suggesting adding explicit std::move since copy otherwise
-        <p class=left>- clang still doesn't diagnose "By value sinks"
         <div class=notes>
         <p>- propose to remove all 4 limitations
         <p>- present quite good study case
@@ -1517,20 +1523,29 @@ Base thirteen() {
         <p>Just one complaint from Mozzilla saying that performance benefit was too little when compared to ugliness
         of explicit std::move. Actually it's not even mistake.</p>
         <div class=notes>
-        <p>- 11 months for feedback
-        <p>- R2 - ++x
+        <p>- 
         </p>
         </div>
         </div>
 <!-- =================================================================================================== -->        
+        <div id="Future15b" class="step" data-x="3900" data-y="-5400" data-z="0">         
+        <p class=title>Both papers merged as P1825 and included in C++20</p>
+        <p>p0527</p>
+		<p>p1155</p>
+		<a href="http://wg21.link/p1825">http://wg21.link/p1825</a>
+        <div class=notes>
+        <p>- 
+        </p>
+        </div>
+        </div>		
+<!-- =================================================================================================== -->        
         <div id="Future16" class="step" data-x="5200" data-y="-5400" data-z="0">         
-        <p class=title>P0889R1<br>
+        <p class=title>P0889<br>
         Ultimate copy elision</p>
         <p>Antony Polukhin</p>
-        <p>2018-future</p>
-        <p class=link>https://apolukhin.github.io/papers/ultimate_copy_elision_r1.html</p>
+		<a href="http://wg21.link/p0889">http://wg21.link/p0889</a>		
         <div class=notes>
-        <p>- on open-std R0 ver
+		<p>-
         </p>
         </div>
         </div>                
@@ -1548,7 +1563,7 @@ Base thirteen() {
         <div id="Future18" class="step" data-x="2600" data-y="-6200" data-z="0">         
         <p class=title>B. Copy elision rules
         <p class=left>- current rules for copy elision mostly assume that a function from source code remains a function in a binary
-        <p class=left>- inlining, aliasing reasoning, and link time optimization open new world on possible optimizations since fun params and its body is seen together
+        <p class=left>- inlining, aliasing reasoning, and link time optimization open a new world to possible optimizations since fun params and its body is seen together
         <p class=left>- current rules are suboptimal for modern compilers: they prevent optimizations.
         <div class=notes>
         <p>-
@@ -1557,22 +1572,34 @@ Base thirteen() {
         </div>                
 <!-- =================================================================================================== -->        
         <div id="Future19" class="step" data-x="3900" data-y="-6200" data-z="0">         
-        <p class=title>C. std::move/rvalues is not a panacea
-        <p>move operation is not a solution since<br><br>
-        std::array, std::basic_string, std::function, std::variant, std::optional and others<br><br>
+        <p class=title>C. std::move/rvalue is not a panacea
+        <p class=left>move operation is not a solution since<br><br>
+        std::array<br>
+		std::basic_string<br>
+		std::function<br>
+		std::variant<br>
+		std::optional<br>
+		and others<br><br>
         may store a lot of data on stack
         <div class=notes>
         <p>- if you interested in examples, please reach out to paper
+		<p>- mixing copy elision, inlining and other 
+		<p>- still in progress, C++23 label removed recently
+		<p>- author working on implementation and field experience
         </p>
         </div>
         </div>                
 <!-- =================================================================================================== -->        
         <div id="Future20" class="step" data-x="5200" data-y="-6200" data-z="0">         
         <p class=title>Summary</p>
-        <p>year 2002 - the oldest proposal on move semantics found
-        <br>move semantics present for almost 2 decades now
-        <br>there're still areas to optimize</p>
-        <img src=images/proposals/move_semantics_2002_trimmed.PNG>
+        <p class=left>
+		- year 2002 - the oldest proposal on move semantics found
+		</p>
+		<img src=images/proposals/move_semantics_2002_trimmed.PNG>
+		<p class=left>
+		<br>
+        - move semantics present for almost 2 decades now<br>
+        - there're still areas to optimize</p>
         <div class=notes>
         <p>-
         </p>
@@ -1588,12 +1615,12 @@ there're optimization areas to work on. That's amazing.
         <p>- non compiling unique_ptr examples
         <p>- copy elision mechanics and rules
         <p>- RVO with move semantics
-        <p>- changes and defects in C++11, C++14, C++17
+        <p>- changes and defects in C++11, C++14, C++17, C++20
         <p>- new proposals enhancing nr of contexts for copy elision and move object creation on fun return<br>
         <div class=notes>
         <p>-
         </p>
-        We've started with non compiling example, then went through copy elision mechanics and rules,
+        We've started with a non compiling examples, then went through copy elision mechanics and rules,
         then through creating new object with move operation on function return and criteria for this in c++11,14,17.
         Finally we've seen current proposals that aim to yet ehnace no of contexts where copy elision or move object creation 
         can be used.
@@ -1715,6 +1742,9 @@ there're optimization areas to work on. That's amazing.
 
     <script type="text/javascript" src="js/impress.js"></script>
     <script type="text/javascript">impress().init();</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
 </body>
 </html>
 
